@@ -39,7 +39,7 @@ class UpdateManager {
         try {
             updates.removeIf { !it() }
         } catch (e: Throwable) {
-            HytBot.logger.info("[Update] 执行时发生异常", e)
+            HytBot.logger.debug("[Update] 执行时发生异常", e)
         }
     }
 }
