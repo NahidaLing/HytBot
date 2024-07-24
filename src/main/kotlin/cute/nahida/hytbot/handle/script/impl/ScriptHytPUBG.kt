@@ -42,7 +42,7 @@ class ScriptHytPUBG: Script("PUBG") {
     override fun onTeleport(position: BotPosition) {
         if (position == IN_GAME_POS && bot.script.status == Status.HUB) {
             bot.script.status = Status.ROOM_WAIT_START
-            bot.sendMessage(HytBot.configManager.configs.message.on_join_game)
+            if (!bot.script.superAccount) bot.sendMessage(HytBot.configManager.configs.message.on_join_game)
         }
     }
 
@@ -66,7 +66,7 @@ class ScriptHytPUBG: Script("PUBG") {
 
     private fun leave(force: Boolean = false) {
         if ((bot.script.status == Status.ROOM_STARTED && coolDownLeave <= 0) || force) {
-            if (bot.script.status == Status.ROOM_STARTED) bot.sendMessage(HytBot.configManager.configs.message.on_game_started)
+            if (bot.script.status == Status.ROOM_STARTED && !bot.script.superAccount) bot.sendMessage(HytBot.configManager.configs.message.on_game_started)
             coolDownLeave = 20
             Thread.sleep(if (bot.script.superAccount) 200 else 0)
             bot.sendMessage(StaticCommands.COMMAND_HUB)
