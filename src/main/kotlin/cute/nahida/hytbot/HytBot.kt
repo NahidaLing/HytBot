@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger
 
 @Suppress("MemberVisibilityCanBePrivate")
 object HytBot {
+    lateinit var args: Array<String>
     val logger: Logger = LogManager.getLogger(HytBot::class.java)
 
     val configManager = ConfigManage()
@@ -18,7 +19,9 @@ object HytBot {
     var updateManager = UpdateManager()
     var scriptManager = ScriptManager()
 
-    fun start() {
+    fun start(args: Array<String>) {
+        this.args = args
+
         Runtime.getRuntime().addShutdownHook(Thread{ stop() })
 
         configManager.readConfig()
