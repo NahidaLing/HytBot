@@ -7,6 +7,7 @@ import com.sun.net.httpserver.HttpServer
 import cute.nahida.hytbot.HytBot
 import cute.nahida.hytbot.server.api.Index
 import cute.nahida.hytbot.server.api.Ping
+import cute.nahida.hytbot.server.api.ReloadConfig
 import cute.nahida.hytbot.server.api.api.*
 import cute.nahida.hytbot.server.api.api.script.*
 import cute.nahida.hytbot.server.utils.RequestParamsUtils
@@ -52,6 +53,7 @@ class WebServerManager {
 
         addEndPoint("/", Index())
         addEndPoint("/Ping", Ping())
+        addEndPoint("/ReloadConfig", ReloadConfig())
 
         addEndPoint("/api/Opt", Opt())
         addEndPoint("/api/Login", Login())
