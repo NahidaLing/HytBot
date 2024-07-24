@@ -12,5 +12,6 @@ class ScriptManager {
             ?: hashMapOf()
     }
     fun getScriptMap() = scripts
-    fun get(name: String): Script? = scripts[name]?.getDeclaredConstructor(Script::class.java)?.newInstance()
+    fun get(name: String): Script? = scripts[name]?.getDeclaredConstructor()?.newInstance()
+    fun container(name: String): Boolean = scripts.containsKey(name)
 }

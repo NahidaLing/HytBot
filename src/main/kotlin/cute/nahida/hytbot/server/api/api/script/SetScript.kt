@@ -16,7 +16,9 @@ class SetScript : APIHandler {
 
         HytBot.scriptManager.get(script)?.let { scriptInstance ->
             HytBot.botsManager.bots[id]?.let {
+                if (it.script.isEnable) it.script.disable()
                 it.script.bindScript = scriptInstance
+                it.script.isEnable = false
             } ?: run { throw ParamInvalidException("id") }
         } ?: run { throw ParamInvalidException("script") }
 

@@ -8,9 +8,7 @@ import cute.nahida.hytbot.HytBot
 import cute.nahida.hytbot.server.api.Index
 import cute.nahida.hytbot.server.api.Ping
 import cute.nahida.hytbot.server.api.api.*
-import cute.nahida.hytbot.server.api.api.script.ListScripts
-import cute.nahida.hytbot.server.api.api.script.RemoveScript
-import cute.nahida.hytbot.server.api.api.script.SetScript
+import cute.nahida.hytbot.server.api.api.script.*
 import cute.nahida.hytbot.server.utils.RequestParamsUtils
 import cute.nahida.hytbot.server.utils.throwables.ParamInvalidException
 import cute.nahida.hytbot.server.utils.throwables.ParamNotFoundException
@@ -66,8 +64,14 @@ class WebServerManager {
 
         addEndPoint("/api/script/ListScripts", ListScripts())
         addEndPoint("/api/script/SetScript", SetScript())
+        addEndPoint("/api/script/SetScriptAll", SetScriptAll())
         addEndPoint("/api/script/RemoveScript", RemoveScript())
+        addEndPoint("/api/script/RemoveScriptAll", RemoveScriptAll())
         addEndPoint("/api/script/MarkSuperAccount", RemoveScript())
+        addEndPoint("/api/script/EnableScript", EnableScript())
+        addEndPoint("/api/script/EnableScriptAll", EnableScriptAll())
+        addEndPoint("/api/script/DisableScript", DisableScript())
+        addEndPoint("/api/script/DisableScriptAll", DisableScriptAll())
 
     }
 

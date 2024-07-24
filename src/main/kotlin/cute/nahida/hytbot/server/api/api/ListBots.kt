@@ -28,6 +28,7 @@ class ListBots : APIHandler {
 
             val objScript = JsonObject()
             objScript.addProperty("super_account", it.value.script.superAccount)
+            objScript.addProperty("script_status", it.value.script.isEnable)
             objScript.addProperty("script_name", it.value.script.bindScript?.name)
             objScript.addProperty("in_game_status_code", it.value.script.status.code)
             objScript.addProperty("in_game_status_name", it.value.script.status.name)

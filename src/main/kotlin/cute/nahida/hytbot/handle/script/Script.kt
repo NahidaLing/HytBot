@@ -14,8 +14,9 @@ abstract class Script(
      * 开始运行
      *
      * @param bot 传入实例
+     * @return 启动状态 true = 成功 false = 失败
      */
-    open fun onStart(bot: Bot) { }
+    open fun onStart(bot: Bot): Boolean = false
     /**
      * 停止运行
      */

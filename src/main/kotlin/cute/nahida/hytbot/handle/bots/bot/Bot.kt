@@ -2,33 +2,23 @@ package cute.nahida.hytbot.handle.bots.bot
 
 import com.github.steveice10.mc.protocol.MinecraftProtocol
 import com.github.steveice10.mc.protocol.data.game.entity.player.Hand
-import com.github.steveice10.mc.protocol.data.message.Message
 import com.github.steveice10.mc.protocol.packet.ingame.client.ClientChatPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket
-import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerMovementPacket
-import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket
-import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerRotationPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerUseItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientConfirmTransactionPacket
-import com.github.steveice10.mc.protocol.packet.ingame.client.world.ClientTeleportConfirmPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerChatPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerJoinGamePacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerTitlePacket
-import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityTeleportPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerChangeHeldItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPositionRotationPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerConfirmTransactionPacket
-import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerSetSlotPacket
 import com.github.steveice10.packetlib.Client
 import com.github.steveice10.packetlib.event.session.DisconnectedEvent
 import com.github.steveice10.packetlib.event.session.PacketReceivedEvent
-import com.github.steveice10.packetlib.event.session.PacketSendingEvent
 import com.github.steveice10.packetlib.event.session.SessionAdapter
 import com.github.steveice10.packetlib.packet.Packet
 import com.github.steveice10.packetlib.tcp.TcpSessionFactory
 import cute.nahida.hytbot.HytBot
-import cute.nahida.hytbot.handle.script.Script
-import cute.nahida.hytbot.utils.math.RandomUtils
 
 @Suppress("MemberVisibilityCanBePrivate")
 class Bot (
@@ -43,7 +33,7 @@ class Bot (
      */
     var needReconnect = false
 
-    var script: BotBindScript = BotBindScript()
+    var script: BotBindScript = BotBindScript(this)
 
     var host = HytBot.configManager.configs.connect
     var port = 25565
@@ -64,24 +54,24 @@ class Bot (
         client.session.addListener(object : SessionAdapter() {
             override fun packetReceived(event: PacketReceivedEvent) {
                 val packet = event.getPacket<Packet>()
-                script.bindScript?.onPacket(packet)
+                if (script.isEnable) script.bindScript?.onPacket(packet)
                 when (packet) {
                     is ServerJoinGamePacket -> {
                         HytBot.logger.info("[$id] 连接服务器成功")
-                        script.bindScript?.onJoinGame()
+                        if (script.isEnable) script.bindScript?.onJoinGame()
                     }
                     is ServerChatPacket -> {
                         val message = packet.message
                         HytBot.logger.info("[$id] ${message.fullText}")
-                        script.bindScript?.onMessage(message.fullText)
+                        if (script.isEnable) script.bindScript?.onMessage(message.fullText)
                     }
                     is ServerTitlePacket -> {
                         HytBot.logger.info("[$id] 标题信息: ${packet.title?.fullText} ${packet.subtitle?.fullText}")
-                        script.bindScript?.onTitle(packet.title?.fullText, packet.subtitle?.fullText)
+                        if (script.isEnable) script.bindScript?.onTitle(packet.title?.fullText, packet.subtitle?.fullText)
                     }
                     is ServerPlayerPositionRotationPacket -> {
                         if (position != packet) {
-                            script.bindScript?.onTeleport(position)
+                            if (script.isEnable) script.bindScript?.onTeleport(position)
                             HytBot.logger.info("[$id] 玩家被传送 xyz: ${packet.x}, ${packet.y}, ${packet.z}   rotation: ${packet.yaw}, ${packet.pitch}   teleportId: ${packet.teleportId}")
                             position.setPosition(packet)
                         }
@@ -101,12 +91,15 @@ class Bot (
 
             override fun disconnected(event: DisconnectedEvent) {
                 event?.cause.let {
+                    this@Bot.needReconnect = true
                     HytBot.logger.warn("[$id] 断开连接: ${event.reason}", event.cause)
                 } ?: run {
+                    this@Bot.needReconnect = when (event.reason) {
+                        BotsStaticText.DISCONNECT_BY_USER -> false
+                        "验证失败,请尝试重启启动器!" ->  false
+                        else -> true
+                    }
                     HytBot.logger.info("[$id] 断开连接: ${event.reason}")
-                }
-                if (event.reason != BotsStaticText.DISCONNECT_BY_USER) {
-                    this@Bot.needReconnect = true
                 }
             }
         })
@@ -122,17 +115,15 @@ class Bot (
             HytBot.logger.info("[$id] 正在重新连接...")
             start()
         } else {
-            script.bindScript?.onUpdate()
+            if (script.isEnable) script.bindScript?.onUpdate()
         }
         return true
     }
     fun isConnected() = client.session.isConnected
     fun disconnect() = client.session.disconnect(BotsStaticText.DISCONNECT_BY_USER)
     fun sendMessage(message: String): Boolean {
+        if (message.isEmpty()) return false
         try {
-            when (message) {
-                "useitem" ->  client.session.send(ClientPlayerUseItemPacket(Hand.MAIN_HAND))
-            }
             client.session.send(ClientChatPacket(message))
             return true
         } catch (_:Throwable) {

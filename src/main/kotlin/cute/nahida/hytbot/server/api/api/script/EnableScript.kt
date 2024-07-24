@@ -7,22 +7,18 @@ import cute.nahida.hytbot.server.Response
 import cute.nahida.hytbot.server.utils.throwables.ParamInvalidException
 import cute.nahida.hytbot.server.utils.throwables.ParamNotFoundException
 
-class RemoveScript : APIHandler {
+class EnableScript : APIHandler {
     override fun handle(handle: Handle): Response {
         val response = Response()
 
         val id = handle.requestParams["id"] ?: run { throw ParamNotFoundException("id") }
 
         HytBot.botsManager.bots[id]?.let {
-            if (it.script.isEnable) it.script.disable()
-            it.script.isEnable = false
-            it.script.bindScript = null
+            response.data.addProperty("status", it.script.enable())
         } ?: run { throw ParamInvalidException("id") }
 
         response.code = 200
-        response.msg = "设置成功"
-
-        response.data.addProperty("id", id)
+        response.msg = "执行成功"
 
         return response
     }
