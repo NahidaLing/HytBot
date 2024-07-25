@@ -48,4 +48,22 @@ class BotsManager {
     fun sendMessage(message: String) {
         bots.forEach {  it.value.sendMessage(message) }
     }
+
+    /**
+     * 添加重新连接任务
+     * @id 机器人id
+     * @force 是否强制重新连接(忽略机器人已连接)
+     */
+    fun addReconnectTask(id: String, force: Boolean = false): Boolean {
+        if (bots[id]?.isConnected() == true && !force) return false
+        bots[id]?.needReconnect = true
+        return true
+    }
+    /**
+     * 为所有机器人添加重新连接任务
+     * @force 是否强制重新连接(忽略机器人已连接)
+     */
+    fun addReconnectTask(force: Boolean = false) {
+        bots.forEach {  addReconnectTask(it.key, force) }
+    }
 }

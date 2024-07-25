@@ -61,6 +61,8 @@ class WebServerManager {
         addEndPoint("/api/Offline", Offline())
         addEndPoint("/api/OfflineAll", OfflineAll())
         addEndPoint("/api/ListBots", ListBots())
+        addEndPoint("/api/ReLogin", ReLogin())
+        addEndPoint("/api/ReLoginAll", ReLoginAll())
         addEndPoint("/api/SendMessage", SendMessage())
         addEndPoint("/api/SendMessageAll", SendMessageAll())
 
