@@ -119,7 +119,7 @@ class Bot (
         }
         return true
     }
-    fun isConnected() = client.session.isConnected
+    fun isConnected() = try { client.session.isConnected } catch (_: Throwable) { false }
     fun disconnect() = client.session.disconnect(BotsStaticText.DISCONNECT_BY_USER)
     fun sendMessage(message: String): Boolean {
         if (message.isEmpty()) return false
