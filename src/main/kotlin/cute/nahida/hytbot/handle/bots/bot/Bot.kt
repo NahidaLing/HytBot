@@ -106,9 +106,8 @@ class Bot (
 
         HytBot.logger.info("[$id] 开始连接...")
         client.session.connect(false)
-        HytBot.updateManager.addUpdate { update() }
     }
-    private fun update(): Boolean {
+    fun update(): Boolean {
         if (this@Bot.invalid) return false
         if (this@Bot.needReconnect) {
             if (isConnected()) disconnect()

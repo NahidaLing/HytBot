@@ -28,6 +28,7 @@ object HytBot {
         webServerManager.start()
 
         updateManager.reload()
+        updateManager.addUpdate { botsManager.update() }
 
         scriptManager.loadScripts()
     }

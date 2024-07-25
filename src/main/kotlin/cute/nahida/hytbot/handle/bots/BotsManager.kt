@@ -66,4 +66,15 @@ class BotsManager {
     fun addReconnectTask(force: Boolean = false) {
         bots.forEach {  addReconnectTask(it.key, force) }
     }
+    /**
+     * 为所有机器人执行一遍更新
+     * 执行可以刷新一次机器人状态 例如让机器人执行重新连接
+     * 但是 通常你不需要执行此代码 且这会影响 Script 里面 update() 的频率
+     *
+     * @return 固定为 true  用于接入updateManage
+     */
+    fun update(): Boolean {
+        bots.forEach { it.value.update() }
+        return true
+    }
 }
