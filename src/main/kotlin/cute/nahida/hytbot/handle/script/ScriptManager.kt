@@ -8,6 +8,7 @@ class ScriptManager {
         scripts = arrayOf(
             ScriptHytPUBG::class.java,
             ScriptHytWWolf::class.java,
+            ScriptHytBW8S::class.java, ScriptHytBW8D::class.java, ScriptHytBW44::class.java,
         )
             .takeIf { it.isNotEmpty() }
             ?.map { it }
