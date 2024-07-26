@@ -63,7 +63,7 @@ open class ScriptHytSWS(name: String = "SW-S"): Script(name, ScriptInfo(ScriptIn
 
     private fun leave(force: Boolean = false) {
         if ((bot.script.status == Status.ROOM_STARTED && coolDownLeave <= 0) || force) {
-            if (bot.script.status == Status.ROOM_STARTED && !bot.script.superAccount) bot.sendMessage(HytBot.configManager.configs.message.on_game_started)
+            if (!bot.script.superAccount && !force) bot.sendMessage(HytBot.configManager.configs.message.on_game_started)
             coolDownLeave = 20
             bot.sendMessage(StaticCommands.COMMAND_HUB)
         }
