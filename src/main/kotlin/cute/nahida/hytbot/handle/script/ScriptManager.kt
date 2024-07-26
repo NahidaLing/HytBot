@@ -5,7 +5,10 @@ import cute.nahida.hytbot.handle.script.impl.*
 class ScriptManager {
     private var scripts: HashMap<String, Class<out Script>> = hashMapOf()
     fun loadScripts() {
-        scripts = arrayOf(ScriptHytPUBG::class.java, ScriptHytWWolf::class.java)
+        scripts = arrayOf(
+            ScriptHytPUBG::class.java,
+            ScriptHytWWolf::class.java,
+        )
             .takeIf { it.isNotEmpty() }
             ?.map { it }
             ?.associateByTo(HashMap()) { (it.getDeclaredConstructor().newInstance() as Script).name  }

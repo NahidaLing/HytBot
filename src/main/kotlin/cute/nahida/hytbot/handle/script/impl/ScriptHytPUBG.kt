@@ -4,10 +4,11 @@ import cute.nahida.hytbot.HytBot
 import cute.nahida.hytbot.handle.bots.bot.Bot
 import cute.nahida.hytbot.handle.bots.bot.BotPosition
 import cute.nahida.hytbot.handle.script.Script
+import cute.nahida.hytbot.handle.script.ScriptInfo
 import cute.nahida.hytbot.handle.script.utils.misc.StaticCommands
 import cute.nahida.hytbot.handle.script.utils.misc.Status
 
-class ScriptHytPUBG: Script("PUBG") {
+class ScriptHytPUBG: Script("PUBG", ScriptInfo(ScriptInfo.SuperAccountMode.SINGLE)) {
     companion object {
         private val IN_GAME_POS = BotPosition(1377.0, 227.0, 22.0, 260.84973f, 21.749983f)
     }
@@ -66,9 +67,9 @@ class ScriptHytPUBG: Script("PUBG") {
 
     private fun leave(force: Boolean = false) {
         if ((bot.script.status == Status.ROOM_STARTED && coolDownLeave <= 0) || force) {
-            if (bot.script.status == Status.ROOM_STARTED && !bot.script.superAccount) bot.sendMessage(HytBot.configManager.configs.message.on_game_started)
+            if (bot.script.status == Status.ROOM_STARTED && !bot.script.superAccount && !force) bot.sendMessage(HytBot.configManager.configs.message.on_game_started)
             coolDownLeave = 20
-            Thread.sleep(if (bot.script.superAccount) 200 else 0)
+            Thread.sleep(if (bot.script.superAccount && !force) 200 else 0)
             bot.sendMessage(StaticCommands.COMMAND_HUB)
         }
     }

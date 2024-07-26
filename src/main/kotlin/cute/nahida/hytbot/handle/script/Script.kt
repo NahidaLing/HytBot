@@ -8,7 +8,8 @@ abstract class Script(
     /**
      * 模块名字
      */
-    val name: String
+    val name: String,
+    val info: ScriptInfo
 ) {
     /**
      * 开始运行
