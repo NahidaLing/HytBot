@@ -32,3 +32,16 @@ dependencies {
 application {
     mainClass.set("cute.nahida.hyt.HytBotLauncherKt")
 }
+
+tasks {
+    jar {
+        manifest {
+            attributes(
+                "Main-Class" to "cute.nahida.hytbot.HytBotLauncherKt"
+            )
+        }
+
+        from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+}
