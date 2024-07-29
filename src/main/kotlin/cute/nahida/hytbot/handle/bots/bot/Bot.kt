@@ -1,6 +1,7 @@
 package cute.nahida.hytbot.handle.bots.bot
 
 import com.github.steveice10.mc.protocol.MinecraftProtocol
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.EntityMetadata
 import com.github.steveice10.mc.protocol.data.game.entity.player.Hand
 import com.github.steveice10.mc.protocol.packet.ingame.client.ClientChatPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket
@@ -8,9 +9,17 @@ import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlaye
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientConfirmTransactionPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerChatPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerJoinGamePacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.ServerPlayerListDataPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.ServerPlayerListEntryPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerTitlePacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityMetadataPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityStatusPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerChangeHeldItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPositionRotationPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnGlobalEntityPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnMobPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnObjectPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnPlayerPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerConfirmTransactionPacket
 import com.github.steveice10.packetlib.Client
 import com.github.steveice10.packetlib.event.session.DisconnectedEvent
@@ -19,6 +28,8 @@ import com.github.steveice10.packetlib.event.session.SessionAdapter
 import com.github.steveice10.packetlib.packet.Packet
 import com.github.steveice10.packetlib.tcp.TcpSessionFactory
 import cute.nahida.hytbot.HytBot
+import cute.nahida.hytbot.handle.script.utils.misc.Status
+import cute.nahida.hytbot.utils.math.RandomUtils
 
 @Suppress("MemberVisibilityCanBePrivate")
 class Bot (
@@ -38,7 +49,10 @@ class Bot (
     var host = HytBot.configManager.configs.connect
     var port = 25565
 
+    var player = BotPlayer()
     var position = BotPosition()
+
+    private var checkIdMessage: String? = null
 
     lateinit var client: Client
 
@@ -57,12 +71,31 @@ class Bot (
                 if (script.isEnable) script.bindScript?.onPacket(packet)
                 when (packet) {
                     is ServerJoinGamePacket -> {
-                        HytBot.logger.info("[$id] 连接服务器成功")
+                        player.entityId = packet.entityId
+                        HytBot.logger.info("[$id] 连接服务器成功 entityId: ${player.entityId}")
+                        if (script.status == Status.HUB && player.name.isEmpty())  {
+                            Thread {
+                                Thread.sleep(5000) // 等待5秒 因为hyt大厅的大神发言冷却
+                                checkIdMessage = "c_" + RandomUtils.random(1000,9999).toString()
+                                sendMessage(checkIdMessage ?: "")
+                            }.start()
+                        }
                         if (script.isEnable) script.bindScript?.onJoinGame()
                     }
                     is ServerChatPacket -> {
                         val message = packet.message
                         HytBot.logger.info("[$id] ${message.fullText}")
+                        checkIdMessage?.let {
+                            // 通过正则匹配上方玩家自身发出的消息获取玩家ID和大厅等级
+                            val regex = Regex("§e\\[lv(\\d+)]§r§f§7<§f(\\w+)§7> §7$it")
+
+                            regex.find(message.fullText)?.let { matchResult ->
+                                player.name = matchResult.groupValues[2]
+                                player.hytLevel = matchResult.groupValues[1].toInt()
+                                HytBot.logger.info("[$id] 上线成功 name: ${player.name}, hytLevel: ${player.hytLevel}")
+                                checkIdMessage = null
+                            }
+                        }
                         if (script.isEnable) script.bindScript?.onMessage(message.fullText)
                     }
                     is ServerTitlePacket -> {
@@ -118,6 +151,7 @@ class Bot (
         }
         return true
     }
+
     fun isConnected() = try { client.session.isConnected } catch (_: Throwable) { false }
     fun disconnect() = client.session.disconnect(BotsStaticText.DISCONNECT_BY_USER)
     fun sendMessage(message: String): Boolean {
