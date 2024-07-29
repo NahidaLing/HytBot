@@ -51,8 +51,9 @@ class BotsManager {
 
     /**
      * 添加重新连接任务
-     * @id 机器人id
-     * @force 是否强制重新连接(忽略机器人已连接)
+     *
+     * @param id 机器人id
+     * @param force 是否强制重新连接(忽略机器人已连接)
      */
     fun addReconnectTask(id: String, force: Boolean = false): Boolean {
         if (bots[id]?.isConnected() == true && !force) return false
@@ -61,11 +62,19 @@ class BotsManager {
     }
     /**
      * 为所有机器人添加重新连接任务
-     * @force 是否强制重新连接(忽略机器人已连接)
+     *
+     * @param force 是否强制重新连接(忽略机器人已连接)
      */
     fun addReconnectTask(force: Boolean = false) {
         bots.forEach {  addReconnectTask(it.key, force) }
     }
+    /**
+     * Id是否为机器人Id
+     *
+     * @param playerId 玩家Id
+     * @return 查询结果
+     */
+    fun isBot(playerId: String) = bots.firstNotNullOfOrNull { it.value.player.name == playerId } != null
     /**
      * 为所有机器人执行一遍更新
      * 执行可以刷新一次机器人状态 例如让机器人执行重新连接
