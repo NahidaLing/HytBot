@@ -21,12 +21,13 @@ open class BotPosition (
 
     override fun equals(other: Any?): Boolean {
         return when (other) {
-            is BotPosition -> this.hashCode() == other.hashCode()
+            is BotPosition -> this.toString() == other.toString()
             is ServerPlayerPositionRotationPacket -> other.x == this.x && other.y == this.y && other.z == this.z && other.yaw == this.yaw && other.pitch == this.pitch
             else -> super.equals(other)
         }
     }
 
+    override fun toString() = "xyz: $x, $y, $z   rotation: $yaw, $pitch"
     override fun hashCode(): Int {
         var result = x.hashCode()
         result = 31 * result + y.hashCode()

@@ -21,6 +21,7 @@ import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.Serve
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnObjectPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnPlayerPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerConfirmTransactionPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerOpenWindowPacket
 import com.github.steveice10.packetlib.Client
 import com.github.steveice10.packetlib.event.session.DisconnectedEvent
 import com.github.steveice10.packetlib.event.session.PacketReceivedEvent
@@ -104,9 +105,9 @@ class Bot (
                     }
                     is ServerPlayerPositionRotationPacket -> {
                         if (position != packet) {
-                            if (script.isEnable) script.bindScript?.onTeleport(position)
-                            HytBot.logger.info("[$id] 玩家被传送 xyz: ${packet.x}, ${packet.y}, ${packet.z}   rotation: ${packet.yaw}, ${packet.pitch}   teleportId: ${packet.teleportId}")
                             position.setPosition(packet)
+                            if (script.isEnable) script.bindScript?.onTeleport(position)
+                            HytBot.logger.info("[$id] 玩家被传送  $position   teleportId: ${packet.teleportId}")
                         }
                     }
                     is ServerPlayerChangeHeldItemPacket -> {
@@ -118,6 +119,9 @@ class Bot (
                             packet.actionId,
                             true
                         ))
+                    }
+                    is ServerOpenWindowPacket -> {
+                        HytBot.logger.info("[$id] 容器已打开: ${packet.windowId}")
                     }
                 }
             }
