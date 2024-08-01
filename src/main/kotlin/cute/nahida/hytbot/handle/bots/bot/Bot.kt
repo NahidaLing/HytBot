@@ -186,4 +186,12 @@ class Bot (
                 field = value
             }
         }
+    fun getNextContainerConfirmActionId(): Int {
+        containerConfirmId++
+        return containerConfirmId
+    }
+    fun getNextInventoryConfirmActionId(): Int {
+        inventoryConfirmId++
+        return inventoryConfirmId
+    }
 }
