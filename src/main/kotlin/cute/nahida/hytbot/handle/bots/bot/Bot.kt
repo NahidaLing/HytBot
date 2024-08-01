@@ -1,7 +1,6 @@
 package cute.nahida.hytbot.handle.bots.bot
 
 import com.github.steveice10.mc.protocol.MinecraftProtocol
-import com.github.steveice10.mc.protocol.data.game.entity.metadata.EntityMetadata
 import com.github.steveice10.mc.protocol.data.game.entity.player.Hand
 import com.github.steveice10.mc.protocol.packet.ingame.client.ClientChatPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket
@@ -9,17 +8,9 @@ import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlaye
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientConfirmTransactionPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerChatPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerJoinGamePacket
-import com.github.steveice10.mc.protocol.packet.ingame.server.ServerPlayerListDataPacket
-import com.github.steveice10.mc.protocol.packet.ingame.server.ServerPlayerListEntryPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerTitlePacket
-import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityMetadataPacket
-import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityStatusPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerChangeHeldItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPositionRotationPacket
-import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnGlobalEntityPacket
-import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnMobPacket
-import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnObjectPacket
-import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnPlayerPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerConfirmTransactionPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerOpenWindowPacket
 import com.github.steveice10.packetlib.Client
@@ -52,6 +43,9 @@ class Bot (
 
     var player = BotPlayer()
     var position = BotPosition()
+
+    var containerConfirmId = 1
+    var inventoryConfirmId = 0
 
     private var checkIdMessage: String? = null
 
@@ -122,21 +116,22 @@ class Bot (
                     }
                     is ServerOpenWindowPacket -> {
                         HytBot.logger.info("[$id] 容器已打开: ${packet.windowId}")
+                        containerConfirmId = 1
                     }
                 }
             }
 
             override fun disconnected(event: DisconnectedEvent) {
                 event?.cause.let {
-                    this@Bot.needReconnect = true
                     HytBot.logger.warn("[$id] 断开连接: ${event.reason}", event.cause)
                 } ?: run {
-                    this@Bot.needReconnect = when (event.reason) {
-                        BotsStaticText.DISCONNECT_BY_USER -> false
-                        "验证失败,请尝试重启启动器!" ->  false
-                        else -> true
-                    }
                     HytBot.logger.info("[$id] 断开连接: ${event.reason}")
+                }
+                this@Bot.needReconnect = when {
+                    event.reason == BotsStaticText.DISCONNECT_BY_USER -> false
+                    event.reason == "验证失败,请尝试重启启动器!" -> false
+                    event.reason.startsWith("[封禁]") -> false
+                    else -> true
                 }
             }
         })
@@ -146,12 +141,13 @@ class Bot (
     }
     fun update(): Boolean {
         if (this@Bot.invalid) return false
-        if (this@Bot.needReconnect) {
-            if (isConnected()) disconnect()
-            HytBot.logger.info("[$id] 正在重新连接...")
-            start()
-        } else {
-            if (script.isEnable) script.bindScript?.onUpdate()
+        when {
+            this@Bot.needReconnect -> {
+                if (isConnected()) disconnect()
+                HytBot.logger.info("[$id] 正在重新连接...")
+                start()
+            }
+            isConnected() && script.isEnable -> script.bindScript?.onUpdate()
         }
         return true
     }
