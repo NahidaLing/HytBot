@@ -1,10 +1,10 @@
 package cute.nahida.hytbot.handle.script.impl
 
 import com.github.steveice10.mc.protocol.data.game.window.ClickItemParam
+import com.github.steveice10.mc.protocol.data.game.window.DropItemParam
 import com.github.steveice10.mc.protocol.data.game.window.WindowAction
-import com.github.steveice10.mc.protocol.data.game.window.WindowActionParam
+import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientConfirmTransactionPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientWindowActionPacket
-import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerOpenWindowPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerSetSlotPacket
 import com.github.steveice10.packetlib.packet.Packet
 import cute.nahida.hytbot.HytBot
@@ -49,7 +49,7 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.M
     override fun onTeleport(position: BotPosition) {
         when (position) {
             IN_SELECT_KIT_ROOM, IN_SELECT_KIT_ROOM_ANOTHER -> bot.script.status = Status.ROOM_WAIT_START
-            GOOD_POSITION -> bot.script.status = Status.ROOM_STARTED
+            GOOD_POSITION ->  bot.script.status = Status.ROOM_STARTED
             else -> if (bot.script.status != Status.HUB) leave()
         }
     }
@@ -64,6 +64,18 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.M
         when (packet) {
             is ServerSetSlotPacket -> {
                 // 匹配 钻石剑 且 不在玩家背包内  执行 点击
+                when {
+                    packet.item?.id == 276 && packet.windowId != 0 -> {
+                        val actionId = bot.getNextContainerConfirmActionId()
+                        bot.sendPacket(ClientWindowActionPacket(packet.windowId, actionId, packet.slot, packet.item, WindowAction.CLICK_ITEM, ClickItemParam.LEFT_CLICK))
+                        bot.sendPacket(ClientConfirmTransactionPacket(packet.windowId, actionId, true))
+                    }
+                    packet.slot in 5..8 && packet.windowId == 0 && packet.item?.id in 306..309 && bot.script.status == Status.ROOM_STARTED -> {
+                        val actionId = bot.getNextInventoryConfirmActionId()
+                        bot.sendPacket(ClientWindowActionPacket(0, actionId, packet.slot, packet.item, WindowAction.DROP_ITEM, DropItemParam.DROP_FROM_SELECTED))
+                        bot.sendPacket(ClientConfirmTransactionPacket(0, actionId, true))
+                    }
+                }
                 if (packet.item?.id == 276 && packet.windowId != 0) {
                     bot.sendPacket(ClientWindowActionPacket(packet.windowId, 0, packet.slot, packet.item, WindowAction.CLICK_ITEM, ClickItemParam.LEFT_CLICK))
                 }
