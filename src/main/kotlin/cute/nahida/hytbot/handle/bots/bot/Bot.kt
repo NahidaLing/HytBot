@@ -8,6 +8,7 @@ import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlaye
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientConfirmTransactionPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerChatPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerJoinGamePacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.ServerRespawnPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerTitlePacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerChangeHeldItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPositionRotationPacket
@@ -65,8 +66,14 @@ class Bot (
                 when (packet) {
                     is ServerJoinGamePacket -> {
                         player.entityId = packet.entityId
+                        containerConfirmId = 1
+                        inventoryConfirmId = 0
                         HytBot.logger.info("[$id] 连接服务器成功 entityId: ${player.entityId}")
                         if (script.isEnable) script.bindScript?.onJoinGame()
+                    }
+                    is ServerRespawnPacket -> {
+                        containerConfirmId = 1
+                        inventoryConfirmId = 0
                     }
                     is ServerChatPacket -> {
                         val message = packet.message
