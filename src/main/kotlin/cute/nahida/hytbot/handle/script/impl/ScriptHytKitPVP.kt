@@ -1,7 +1,9 @@
 package cute.nahida.hytbot.handle.script.impl
 
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack
 import com.github.steveice10.mc.protocol.data.game.window.ClickItemParam
 import com.github.steveice10.mc.protocol.data.game.window.DropItemParam
+import com.github.steveice10.mc.protocol.data.game.window.ShiftClickItemParam
 import com.github.steveice10.mc.protocol.data.game.window.WindowAction
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientConfirmTransactionPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientWindowActionPacket
@@ -17,8 +19,14 @@ import cute.nahida.hytbot.handle.script.utils.misc.Status
 
 class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.MULTI)) {
     companion object {
-        private val IN_SELECT_KIT_ROOM = BotPosition(-38.5, 212.0, 21.5, 269.90012f, 5.0f)
-        private val IN_SELECT_KIT_ROOM_ANOTHER = BotPosition(-40.0, 213.0, 22.0, 270.0f, 5.0f)
+        private val IN_SELECT_KIT_ROOM = mutableListOf(
+            // 房间类型 A
+            BotPosition(-38.5, 212.0, 21.5, 269.90012f, 5.0f),
+            BotPosition(-40.0, 213.0, 22.0, 270.0f, 5.0f),
+            // 房间类型 B
+            BotPosition(15.5, 107.0, -2.5 ,0f ,0f),
+            BotPosition(15.824555091786351, 107.0, -0.5095520156729517 ,270.0f, 5.0f)
+        )
         private val GOOD_POSITION = BotPosition(31.0, 65.0, -10.0, 0f, 0f)
     }
 
@@ -47,10 +55,22 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.M
     }
 
     override fun onTeleport(position: BotPosition) {
-        when (position) {
-            IN_SELECT_KIT_ROOM, IN_SELECT_KIT_ROOM_ANOTHER -> bot.script.status = Status.ROOM_WAIT_START
-            GOOD_POSITION ->  bot.script.status = Status.ROOM_STARTED
+        when {
+            IN_SELECT_KIT_ROOM.contains(position) -> {
+                HytBot.logger.debug("[KitHelper] 回到选择职业大厅")
+                bot.script.status = Status.ROOM_WAIT_START
+            }
+            GOOD_POSITION == position ->  {
+                HytBot.logger.debug("[KitHelper] 进入")
+                bot.script.status = Status.ROOM_STARTED
+            }
             else -> if (bot.script.status != Status.HUB) leave()
+        }
+    }
+
+    override fun onMessage(msg: String) {
+        when (msg) {
+            "§a§l无敌状态将于§c§l1§a§l秒后结束!" -> doRemoveArmor()
         }
     }
 
@@ -70,16 +90,15 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.M
                         bot.sendPacket(ClientWindowActionPacket(packet.windowId, actionId, packet.slot, packet.item, WindowAction.CLICK_ITEM, ClickItemParam.LEFT_CLICK))
                         bot.sendPacket(ClientConfirmTransactionPacket(packet.windowId, actionId, true))
                     }
-                    packet.slot in 5..8 && packet.windowId == 0 && packet.item?.id in 306..309 && bot.script.status == Status.ROOM_STARTED -> {
-                        val actionId = bot.getNextInventoryConfirmActionId()
-                        bot.sendPacket(ClientWindowActionPacket(0, actionId, packet.slot, packet.item, WindowAction.DROP_ITEM, DropItemParam.DROP_FROM_SELECTED))
-                        bot.sendPacket(ClientConfirmTransactionPacket(0, actionId, true))
-                    }
-                }
-                if (packet.item?.id == 276 && packet.windowId != 0) {
-                    bot.sendPacket(ClientWindowActionPacket(packet.windowId, 0, packet.slot, packet.item, WindowAction.CLICK_ITEM, ClickItemParam.LEFT_CLICK))
                 }
             }
+        }
+    }
+    private fun doRemoveArmor() {
+        for (i in 5..8) {
+            val actionId = bot.getNextInventoryConfirmActionId()
+            bot.sendPacket(ClientWindowActionPacket(0, actionId, i, ItemStack(0), WindowAction.SHIFT_CLICK_ITEM, ShiftClickItemParam.LEFT_CLICK))
+            bot.sendPacket(ClientConfirmTransactionPacket(0, actionId, true))
         }
     }
 
