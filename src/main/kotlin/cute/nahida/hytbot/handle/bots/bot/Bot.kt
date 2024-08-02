@@ -47,8 +47,6 @@ class Bot (
     var containerConfirmId = 1
     var inventoryConfirmId = 0
 
-    private var checkIdMessage: String? = null
-
     lateinit var client: Client
 
     @Suppress("UNNECESSARY_SAFE_CALL", "USELESS_ELVIS")
@@ -68,29 +66,11 @@ class Bot (
                     is ServerJoinGamePacket -> {
                         player.entityId = packet.entityId
                         HytBot.logger.info("[$id] 连接服务器成功 entityId: ${player.entityId}")
-                        if (script.status == Status.HUB && player.name.isEmpty())  {
-                            Thread {
-                                Thread.sleep(5000) // 等待5秒 因为hyt大厅的大神发言冷却
-                                checkIdMessage = "c_" + RandomUtils.random(1000,9999).toString()
-                                sendMessage(checkIdMessage ?: "")
-                            }.start()
-                        }
                         if (script.isEnable) script.bindScript?.onJoinGame()
                     }
                     is ServerChatPacket -> {
                         val message = packet.message
                         HytBot.logger.info("[$id] ${message.fullText}")
-                        checkIdMessage?.let {
-                            // 通过正则匹配上方玩家自身发出的消息获取玩家ID和大厅等级
-                            val regex = Regex("§e\\[lv(\\d+)]§r§f§7<§f(\\w+)§7> §7$it")
-
-                            regex.find(message.fullText)?.let { matchResult ->
-                                player.name = matchResult.groupValues[2]
-                                player.hytLevel = matchResult.groupValues[1].toInt()
-                                HytBot.logger.info("[$id] 上线成功 name: ${player.name}, hytLevel: ${player.hytLevel}")
-                                checkIdMessage = null
-                            }
-                        }
                         if (script.isEnable) script.bindScript?.onMessage(message.fullText)
                     }
                     is ServerTitlePacket -> {

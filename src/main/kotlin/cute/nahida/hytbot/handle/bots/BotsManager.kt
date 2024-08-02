@@ -69,13 +69,6 @@ class BotsManager {
         bots.forEach {  addReconnectTask(it.key, force) }
     }
     /**
-     * Id是否为机器人Id
-     *
-     * @param playerId 玩家Id
-     * @return 查询结果
-     */
-    fun isBot(playerId: String) = bots.firstNotNullOfOrNull { it.value.player.name == playerId } != null
-    /**
      * 为所有机器人执行一遍更新
      * 执行可以刷新一次机器人状态 例如让机器人执行重新连接
      * 但是 通常你不需要执行此代码 且这会影响 Script 里面 update() 的频率

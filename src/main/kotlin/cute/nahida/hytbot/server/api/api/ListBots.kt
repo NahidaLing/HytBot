@@ -17,8 +17,6 @@ class ListBots : APIHandler {
         HytBot.botsManager.bots.forEach {
             val obj = JsonObject()
             obj.addProperty("id", it.key)
-            obj.addProperty("name", it.value.player.name)
-            obj.addProperty("level", it.value.player.hytLevel)
             obj.addProperty("invalid", it.value.invalid)
             obj.addProperty("hash", it.value.hashCode())
 
