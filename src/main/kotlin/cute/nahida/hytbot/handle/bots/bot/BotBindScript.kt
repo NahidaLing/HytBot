@@ -37,5 +37,6 @@ open class BotBindScript (
     fun disable() {
         isEnable = false
         bindScript?.onStop()
+        bot.script.status = Status.HUB
     }
 }
