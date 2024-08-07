@@ -2,7 +2,6 @@ package cute.nahida.hytbot.handle.script.impl
 
 import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack
 import com.github.steveice10.mc.protocol.data.game.window.ClickItemParam
-import com.github.steveice10.mc.protocol.data.game.window.DropItemParam
 import com.github.steveice10.mc.protocol.data.game.window.ShiftClickItemParam
 import com.github.steveice10.mc.protocol.data.game.window.WindowAction
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientConfirmTransactionPacket
@@ -27,7 +26,12 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.M
             BotPosition(15.5, 107.0, -2.5 ,0f ,0f),
             BotPosition(15.824555091786351, 107.0, -0.5095520156729517 ,270.0f, 5.0f)
         )
-        private val GOOD_POSITION = BotPosition(31.0, 65.0, -10.0, 0f, 0f)
+        private val GOOD_POSITION = mutableListOf(
+            // 房间类型 A
+            BotPosition(31.0, 65.0, -10.0, 0f, 0f),
+            // 房间类型 B
+            BotPosition(59.5, 69.0, 7.5, 90.0f, 0f)
+        )
     }
 
     private lateinit var bot: Bot
