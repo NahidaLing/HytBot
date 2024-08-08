@@ -6,6 +6,7 @@ import com.github.steveice10.mc.protocol.packet.ingame.client.ClientChatPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerUseItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientConfirmTransactionPacket
+import com.github.steveice10.mc.protocol.packet.ingame.client.world.ClientTeleportConfirmPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerChatPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerJoinGamePacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerRespawnPacket
@@ -89,6 +90,7 @@ class Bot (
                             position.setPosition(packet)
                             if (script.isEnable) script.bindScript?.onTeleport(position)
                             HytBot.logger.info("[$id] 玩家被传送  $position   teleportId: ${packet.teleportId}")
+                            if (packet.teleportId != 0) sendPacket(ClientTeleportConfirmPacket(packet.teleportId))
                         }
                     }
                     is ServerPlayerChangeHeldItemPacket -> {
