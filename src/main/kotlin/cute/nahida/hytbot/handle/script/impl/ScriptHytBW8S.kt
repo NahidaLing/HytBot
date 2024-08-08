@@ -13,7 +13,15 @@ open class ScriptHytBW8S(name: String = "BW8S"): Script(name, ScriptInfo(ScriptI
     open val commands = arrayOf("/germclick c3ViamVjdF9iZWR3YXI=", "/germsubclick IMKnZcKnbDjpmJ/ljZXkurrnu53mnYDmqKHlvI8=")
 
     companion object {
-        private val IN_GAME_POS = BotPosition( 610.5, 126.0, 467.5, 0.0f, 0.0f)
+        val IN_GAME_POS: MutableList<BotPosition> = mutableListOf(
+            // 默认图
+            BotPosition( 610.5, 126.0, 467.5, 0.0f, 0.0f),
+            // 无火 16 特殊
+            BotPosition( 665.5, 111.5, 90.5, -180.0f, 0.0f),
+            // 无火 32 特殊
+            BotPosition(-24.699999988079067, 71.0, 435.69999998807907, -130.94986f, 14.850006f),
+            BotPosition(7.5, 112.5, -267.5, 0f, 0f)
+        )
     }
 
     private lateinit var bot: Bot
@@ -39,7 +47,7 @@ open class ScriptHytBW8S(name: String = "BW8S"): Script(name, ScriptInfo(ScriptI
 
     override fun onMessage(msg: String) {
         when (msg) {
-            "起床战争>> 游戏开始 ..." -> bot.script.status = Status.ROOM_STARTED
+            //"起床战争>> 游戏开始 ..." -> bot.script.status = Status.ROOM_STARTED
         }
     }
 

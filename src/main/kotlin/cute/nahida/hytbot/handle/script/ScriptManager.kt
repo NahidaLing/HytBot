@@ -9,6 +9,7 @@ class ScriptManager {
             ScriptHytPUBG::class.java,
             ScriptHytWWolf::class.java,
             ScriptHytBW8S::class.java, ScriptHytBW8D::class.java, ScriptHytBW44::class.java,
+            ScriptHytBWXP16::class.java, ScriptHytBWXP32::class.java,
             ScriptHytSWS::class.java, ScriptHytSWD::class.java,
             ScriptHytKitPVP::class.java
         )
