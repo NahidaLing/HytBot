@@ -13,10 +13,10 @@ class BotsManager {
      * @param startPort 起始端口
      * @param count 登录数量
      */
-    fun login(startPort: Int, count: Int = 1) {
+    fun login(startPort: Int, count: Int = 1, ip: String = HytBot.configManager.configs.connect) {
         for(i in startPort..<startPort + count) {
             val bot = Bot(i.toString())
-            if (!check(i.toString())) bot.start(HytBot.configManager.configs.connect, i)
+            if (!check(i.toString())) bot.start(ip, i)
             bots[i.toString()] = bot
         }
     }

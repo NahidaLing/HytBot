@@ -10,6 +10,9 @@ import cute.nahida.hytbot.server.api.Ping
 import cute.nahida.hytbot.server.api.ReloadConfig
 import cute.nahida.hytbot.server.api.api.*
 import cute.nahida.hytbot.server.api.api.script.*
+import cute.nahida.hytbot.server.api.api.wnf.WNFCloseProxy
+import cute.nahida.hytbot.server.api.api.wnf.WNFStartProxy
+import cute.nahida.hytbot.server.api.api.wnf.WNFLogin
 import cute.nahida.hytbot.server.utils.RequestParamsUtils
 import cute.nahida.hytbot.server.utils.throwables.ParamInvalidException
 import cute.nahida.hytbot.server.utils.throwables.ParamNotFoundException
@@ -65,6 +68,10 @@ class WebServerManager {
         addEndPoint("/api/ReLoginAll", ReLoginAll())
         addEndPoint("/api/SendMessage", SendMessage())
         addEndPoint("/api/SendMessageAll", SendMessageAll())
+
+        addEndPoint("/api/wnf/WNFLogin", WNFLogin())
+        addEndPoint("/api/wnf/WNFStartProxy", WNFStartProxy())
+        addEndPoint("/api/wnf/WNFCloseProxy", WNFCloseProxy())
 
         addEndPoint("/api/script/ListScripts", ListScripts())
         addEndPoint("/api/script/SetScript", SetScript())
