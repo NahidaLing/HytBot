@@ -78,7 +78,7 @@ class WebServerManager {
         addEndPoint("/api/script/SetScriptAll", SetScriptAll())
         addEndPoint("/api/script/RemoveScript", RemoveScript())
         addEndPoint("/api/script/RemoveScriptAll", RemoveScriptAll())
-        addEndPoint("/api/script/MarkSuperAccount", RemoveScript())
+        addEndPoint("/api/script/MarkSuperAccount",MarkSuperAccount())
         addEndPoint("/api/script/EnableScript", EnableScript())
         addEndPoint("/api/script/EnableScriptAll", EnableScriptAll())
         addEndPoint("/api/script/DisableScript", DisableScript())
