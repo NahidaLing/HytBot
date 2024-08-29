@@ -2,6 +2,8 @@ package cute.nahida.hytbot.handle.bots
 
 import cute.nahida.hytbot.HytBot
 import cute.nahida.hytbot.handle.bots.bot.Bot
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 class BotsManager {
     val bots: HashMap<String, Bot> = hashMapOf()
@@ -76,7 +78,17 @@ class BotsManager {
      * @return 固定为 true  用于接入updateManage
      */
     fun update(): Boolean {
-        bots.forEach { it.value.update() }
+        // kotlin await 不能用 我裂开了
+        val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+        val futures: List<Future<*>> = bots.values.map { bot ->
+            executor.submit {
+                bot.update()
+            }
+        }
+
+        futures.forEach { it.get() }
+
+        executor.shutdown()
         return true
     }
 }
