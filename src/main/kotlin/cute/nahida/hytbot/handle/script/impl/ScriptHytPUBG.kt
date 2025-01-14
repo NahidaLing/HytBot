@@ -12,15 +12,10 @@ class ScriptHytPUBG: Script("PUBG", ScriptInfo(ScriptInfo.SuperAccountMode.SINGL
     companion object {
         private val IN_GAME_POS = BotPosition(1377.0, 227.0, 22.0, 260.84973f, 21.749983f)
     }
-    private lateinit var bot: Bot
 
     private var coolDownJoin = 0
     private var coolDownLeave = 0
 
-    override fun onStart(bot: Bot): Boolean {
-        this.bot = bot
-        return true
-    }
     override fun onStop() {
         leave(true)
     }
@@ -34,8 +29,9 @@ class ScriptHytPUBG: Script("PUBG", ScriptInfo(ScriptInfo.SuperAccountMode.SINGL
     }
 
     override fun onTitle(title: String?, subTitle: String?) {
+        super.onTitle(title, subTitle)
+
         when (title) {
-            "花雨庭" -> bot.script.status = Status.HUB
             "§a飞行中..." -> bot.script.status = Status.ROOM_STARTED
         }
     }

@@ -34,14 +34,8 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.M
         )
     }
 
-    private lateinit var bot: Bot
-
     private var coolDownJoin = 0
 
-    override fun onStart(bot: Bot): Boolean {
-        this.bot = bot
-        return true
-    }
     override fun onStop() {
         leave()
     }
@@ -75,12 +69,6 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.M
     override fun onMessage(msg: String) {
         when (msg) {
             "§a§l无敌状态将于§c§l1§a§l秒后结束!" -> doRemoveArmor()
-        }
-    }
-
-    override fun onTitle(title: String?, subTitle: String?) {
-        when (title) {
-            "花雨庭" -> bot.script.status = Status.HUB
         }
     }
 

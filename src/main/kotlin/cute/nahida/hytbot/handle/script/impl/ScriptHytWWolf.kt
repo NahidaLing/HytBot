@@ -1,22 +1,15 @@
 package cute.nahida.hytbot.handle.script.impl
 
 import cute.nahida.hytbot.HytBot
-import cute.nahida.hytbot.handle.bots.bot.Bot
 import cute.nahida.hytbot.handle.script.Script
 import cute.nahida.hytbot.handle.script.ScriptInfo
 import cute.nahida.hytbot.handle.script.utils.misc.StaticCommands
 import cute.nahida.hytbot.handle.script.utils.misc.Status
 
 class ScriptHytWWolf: Script("WWolf", ScriptInfo(ScriptInfo.SuperAccountMode.MULTI)) {
-    private lateinit var bot: Bot
-
     private var coolDownJoin = 0
     private var coolDownLeave = 0
 
-    override fun onStart(bot: Bot): Boolean {
-        this.bot = bot
-        return true
-    }
     override fun onStop() {
         leave(true)
     }
@@ -37,8 +30,9 @@ class ScriptHytWWolf: Script("WWolf", ScriptInfo(ScriptInfo.SuperAccountMode.MUL
     }
 
     override fun onTitle(title: String?, subTitle: String?) {
+        super.onTitle(title, subTitle)
+
         when (title) {
-            "花雨庭" -> bot.script.status = Status.HUB
             // 只需要让狼人立刻退出
             "§f本局你是..§c§l狼人!", "§e§l大吉大利!你获胜了!" -> bot.script.status = Status.ROOM_STARTED
         }

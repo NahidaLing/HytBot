@@ -24,15 +24,9 @@ open class ScriptHytBW8S(name: String = "BW8S"): Script(name, ScriptInfo(ScriptI
         )
     }
 
-    private lateinit var bot: Bot
-
     private var coolDownJoin = 0
     private var coolDownLeave = 0
 
-    override fun onStart(bot: Bot): Boolean {
-        this.bot = bot
-        return true
-    }
     override fun onStop() {
         leave(true)
     }
@@ -54,11 +48,6 @@ open class ScriptHytBW8S(name: String = "BW8S"): Script(name, ScriptInfo(ScriptI
     override fun onTeleport(position: BotPosition) {
         when (position) {
             IN_GAME_POS -> bot.script.status = Status.ROOM_WAIT_START
-        }
-    }
-    override fun onTitle(title: String?, subTitle: String?) {
-        when (title) {
-            "花雨庭" -> bot.script.status = Status.HUB
         }
     }
 

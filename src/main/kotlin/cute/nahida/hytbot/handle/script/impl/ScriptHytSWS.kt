@@ -12,16 +12,9 @@ open class ScriptHytSWS(name: String = "SW-S"): Script(name, ScriptInfo(ScriptIn
     @Suppress("SpellCheckingInspection")
     open val commands = arrayOf("/germclick c3ViamVjdF9za3l3YXI=", "/germsubclick IMKnZcKnbOepuuWym+aImOS6ieWNleS6ug==")
 
-
-    private lateinit var bot: Bot
-
     private var coolDownJoin = 0
     private var coolDownLeave = 0
 
-    override fun onStart(bot: Bot): Boolean {
-        this.bot = bot
-        return true
-    }
     override fun onStop() {
         leave(true)
     }
@@ -41,9 +34,8 @@ open class ScriptHytSWS(name: String = "SW-S"): Script(name, ScriptInfo(ScriptIn
     }
 
     override fun onTitle(title: String?, subTitle: String?) {
-        when (title) {
-            "花雨庭" -> bot.script.status = Status.HUB
-        }
+        super.onTitle(title, subTitle)
+
         when (subTitle) {
             "§bFighting" -> bot.script.status = Status.ROOM_STARTED
         }

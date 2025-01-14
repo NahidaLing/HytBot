@@ -3,6 +3,7 @@ package cute.nahida.hytbot.handle.script
 import com.github.steveice10.packetlib.packet.Packet
 import cute.nahida.hytbot.handle.bots.bot.Bot
 import cute.nahida.hytbot.handle.bots.bot.BotPosition
+import cute.nahida.hytbot.handle.script.utils.misc.Status
 
 abstract class Script(
     /**
@@ -11,13 +12,17 @@ abstract class Script(
     val name: String,
     val info: ScriptInfo
 ) {
+    protected lateinit var bot: Bot
     /**
      * 开始运行
      *
      * @param bot 传入实例
      * @return 启动状态 true = 成功 false = 失败
      */
-    open fun onStart(bot: Bot): Boolean = false
+    open fun onStart(bot: Bot): Boolean {
+        this.bot = bot
+        return true
+    }
     /**
      * 停止运行
      */
@@ -33,7 +38,9 @@ abstract class Script(
     /**
      * 传入标题(/title命令)
      */
-    open fun onTitle(title: String?, subTitle: String?) { }
+    open fun onTitle(title: String?, subTitle: String?) {
+        if (title == "花雨庭" || subTitle == "新活动已上线..") bot.script.status = Status.HUB
+    }
     /**
      * 玩家被传送
      */
