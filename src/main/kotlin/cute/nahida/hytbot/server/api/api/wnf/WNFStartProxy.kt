@@ -13,6 +13,7 @@ class WNFStartProxy : APIHandler {
         val response = Response()
 
         val accounts = handle.requestParams["account"]?.split(",") ?: run { throw ParamNotFoundException("account") }
+        val login = handle.requestParams["login"] == "true"
 
         val loginPorts: MutableList<Int> = mutableListOf()
 
@@ -20,9 +21,9 @@ class WNFStartProxy : APIHandler {
             if (accounts.contains(it.user_id.toString())) {
                 HytBot.wnf.loginGameAccount(it)
                 HytBot.wnf.getRoleNames("77114517833647104")?.forEach runProxy@{ role ->
+                    Thread.sleep(1000)
                     val proxy = HytBot.wnf.startProxy(role) ?: return@runProxy
                     HytBot.logger.info("[WNFUtils] 账号 ${it.user_id}/${role.roleName} 代理启动成功  ${proxy.serverAddr} -> ${proxy.localProxy}")
-                    HytBot.botsManager.login(proxy.localProxy.port, 1, proxy.localProxy.ip)
                     loginPorts.add(proxy.localProxy.port)
                 } ?: HytBot.logger.info("[WNFUtils] 账号 ${it.user_id} 游戏角色列表获取异常")
             }
@@ -37,6 +38,7 @@ class WNFStartProxy : APIHandler {
         val portsJsonArray = JsonArray()
         loginPorts.forEach { port ->
             portsJsonArray.add(JsonPrimitive(port))
+            if (login) HytBot.botsManager.login(port, 1)
         }
         response.data.add("ports", portsJsonArray)
         return response
