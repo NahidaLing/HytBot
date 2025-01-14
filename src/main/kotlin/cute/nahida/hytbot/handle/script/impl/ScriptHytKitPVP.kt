@@ -9,14 +9,13 @@ import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientWindo
 import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerSetSlotPacket
 import com.github.steveice10.packetlib.packet.Packet
 import cute.nahida.hytbot.HytBot
-import cute.nahida.hytbot.handle.bots.bot.Bot
 import cute.nahida.hytbot.handle.bots.bot.BotPosition
 import cute.nahida.hytbot.handle.script.Script
 import cute.nahida.hytbot.handle.script.ScriptInfo
-import cute.nahida.hytbot.handle.script.utils.misc.StaticCommands
+import cute.nahida.hytbot.handle.script.manager.ScriptHytJoinGameData
 import cute.nahida.hytbot.handle.script.utils.misc.Status
 
-class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.MULTI)) {
+class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.DISABLE)) {
     companion object {
         private val IN_SELECT_KIT_ROOM = mutableListOf(
             // 房间类型 A
@@ -34,20 +33,19 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.M
         )
     }
 
-    private var coolDownJoin = 0
-
-    override fun onStop() {
-        leave()
+    init {
+        joinGameManager.game = ScriptHytJoinGameData(2, "FIGHT/kb-game")
     }
 
     override fun onUpdate() {
-        if (coolDownJoin > 0) coolDownJoin--
-
         bot.slot = 0
 
         when (bot.script.status) {
-            Status.HUB -> join()
-            Status.ROOM_WAIT_START -> bot.tryUseItem()
+            Status.HUB -> joinGameManager.join()
+            Status.ROOM_WAIT_START -> {
+                joinGameManager.resetTryCount()
+                bot.tryUseItem()
+            }
             Status.ROOM_STARTED -> { }
         }
     }
@@ -62,7 +60,7 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.M
                 HytBot.logger.debug("[KitHelper] 进入")
                 bot.script.status = Status.ROOM_STARTED
             }
-            else -> if (bot.script.status != Status.HUB) leave()
+            else -> if (bot.script.status != Status.HUB) joinGameManager.leave()
         }
     }
 
@@ -92,26 +90,5 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.M
             bot.sendPacket(ClientWindowActionPacket(0, actionId, i, ItemStack(0), WindowAction.SHIFT_CLICK_ITEM, ShiftClickItemParam.LEFT_CLICK))
             bot.sendPacket(ClientConfirmTransactionPacket(0, actionId, true))
         }
-    }
-
-    private fun join() {
-        if (bot.script.status == Status.HUB && coolDownJoin <= 0) {
-            coolDownJoin = 20
-            // 尝试打开游戏菜单
-            bot.slot = 0
-            bot.tryUseItem()
-            Thread.sleep(100)
-            // GermMod 执行 (WNF Only)
-            @Suppress("SpellCheckingInspection")
-            bot.sendMessage("/germclick c3ViamVjdF9maWdodA==")
-            @Suppress("SpellCheckingInspection")
-            bot.sendMessage("/germsubclick IMKnZcKnbOiBjOS4muaImOS6iQ==")
-        }
-    }
-
-    private fun leave() {
-        bot.script.status = Status.HUB
-        coolDownJoin = 10
-        bot.sendMessage(StaticCommands.COMMAND_HUB)
     }
 }
