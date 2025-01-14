@@ -1,8 +1,11 @@
 package cute.nahida.hytbot.handle.script
 
+import com.github.steveice10.mc.protocol.data.message.Message
 import com.github.steveice10.packetlib.packet.Packet
 import cute.nahida.hytbot.handle.bots.bot.Bot
 import cute.nahida.hytbot.handle.bots.bot.BotPosition
+import cute.nahida.hytbot.handle.script.manager.ScriptHytJoinGameManager
+import cute.nahida.hytbot.handle.script.utils.misc.StaticCommands
 import cute.nahida.hytbot.handle.script.utils.misc.Status
 
 abstract class Script(
@@ -12,7 +15,9 @@ abstract class Script(
     val name: String,
     val info: ScriptInfo
 ) {
-    protected lateinit var bot: Bot
+    protected val joinGameManager = ScriptHytJoinGameManager()
+
+    lateinit var bot: Bot
     /**
      * 开始运行
      *
@@ -21,16 +26,29 @@ abstract class Script(
      */
     open fun onStart(bot: Bot): Boolean {
         this.bot = bot
+        // 不能在构造函数直接传递
+        joinGameManager.script = this
+
         return true
     }
     /**
      * 停止运行
      */
-    open fun onStop() { }
+    open fun onStop() {
+        bot.sendMessage(StaticCommands.COMMAND_HUB)
+    }
     /**
      * 每 200ms 调用一次
      */
-    open fun onUpdate() { }
+    open fun onUpdate() {
+        when (bot.script.status) {
+            Status.HUB -> joinGameManager.join()
+            Status.ROOM_WAIT_START -> joinGameManager.resetTryCount()
+            Status.ROOM_STARTED -> onStop()
+
+            else -> { }
+        }
+    }
     /**
      * 传入聊天栏接受消息
      */

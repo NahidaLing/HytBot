@@ -3,6 +3,7 @@ package cute.nahida.hytbot.handle.bots.bot
 import com.github.steveice10.mc.protocol.MinecraftProtocol
 import com.github.steveice10.mc.protocol.data.game.entity.player.Hand
 import com.github.steveice10.mc.protocol.packet.ingame.client.ClientChatPacket
+import com.github.steveice10.mc.protocol.packet.ingame.client.ClientPluginMessagePacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerUseItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientConfirmTransactionPacket
@@ -70,6 +71,10 @@ class Bot (
                         containerConfirmId = 1
                         inventoryConfirmId = 0
                         HytBot.logger.info("[$id] 连接服务器成功 entityId: ${player.entityId}")
+
+                        sendPacket(ClientPluginMessagePacket("MC|Brand", "fml,forge".toByteArray(Charsets.UTF_8)))
+                        sendPacket(ClientPluginMessagePacket("REGISTER", mutableListOf("FML|HS", "FML", "FML|MP", "Forge", "armourers", "hyt0", "germplugin-netease", "VexView").joinToString('\u0000'.toString()).toByteArray(Charsets.UTF_8)))
+
                         if (script.isEnable) script.bindScript?.onJoinGame()
                     }
                     is ServerRespawnPacket -> {
