@@ -1,6 +1,5 @@
 package cute.nahida.hytbot.handle.script
 
-import com.github.steveice10.mc.protocol.data.message.Message
 import com.github.steveice10.packetlib.packet.Packet
 import cute.nahida.hytbot.handle.bots.bot.Bot
 import cute.nahida.hytbot.handle.bots.bot.BotPosition
@@ -35,7 +34,7 @@ abstract class Script(
      * 停止运行
      */
     open fun onStop() {
-        bot.sendMessage(StaticCommands.COMMAND_HUB)
+        joinGameManager.leave(force = true)
     }
     /**
      * 每 200ms 调用一次
@@ -44,9 +43,7 @@ abstract class Script(
         when (bot.script.status) {
             Status.HUB -> joinGameManager.join()
             Status.ROOM_WAIT_START -> joinGameManager.resetTryCount()
-            Status.ROOM_STARTED -> onStop()
-
-            else -> { }
+            Status.ROOM_STARTED -> joinGameManager.leave(force = false)
         }
     }
     /**

@@ -1,7 +1,11 @@
 package cute.nahida.hytbot.handle.script.impl
 
+import cute.nahida.hytbot.handle.script.manager.ScriptHytJoinGameData
+
 
 open class ScriptHytBW8D: ScriptHytBW8S("BW8D") {
-    @Suppress("SpellCheckingInspection")
-    override val commands = arrayOf("/germclick c3ViamVjdF9iZWR3YXI=", "/germsubclick IMKnZcKnbDjpmJ/lj4zkurrnu53mnYDmqKHlvI8=")
+    init {
+        @Suppress("SpellCheckingInspection")
+        joinGameManager.game = ScriptHytJoinGameData(2, "BEDWAR/bw-double")
+    }
 }
