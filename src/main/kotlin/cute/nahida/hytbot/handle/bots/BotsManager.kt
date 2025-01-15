@@ -5,7 +5,7 @@ import cute.nahida.hytbot.handle.bots.bot.Bot
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
-class BotsManager {
+class BotsManager(@JvmField val base: HytBot) {
     val bots: HashMap<String, Bot> = hashMapOf()
 
 
@@ -20,6 +20,8 @@ class BotsManager {
             val bot = Bot(i.toString())
             if (!check(i.toString())) bot.start(ip, i)
             bots[i.toString()] = bot
+
+            Thread.sleep(base.configManager.configs.bot.loginDelay)
         }
     }
     /**

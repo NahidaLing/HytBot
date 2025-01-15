@@ -15,7 +15,7 @@ object HytBot {
     val logger: Logger = LogManager.getLogger(HytBot::class.java)
 
     val configManager = ConfigManage()
-    val botsManager = BotsManager()
+    val botsManager = BotsManager(this)
     val webServerManager = WebServerManager()
     var updateManager = UpdateManager()
     var scriptManager = ScriptManager()
