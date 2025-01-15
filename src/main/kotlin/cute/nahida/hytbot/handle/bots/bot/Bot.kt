@@ -2,9 +2,11 @@ package cute.nahida.hytbot.handle.bots.bot
 
 import com.github.steveice10.mc.protocol.MinecraftProtocol
 import com.github.steveice10.mc.protocol.data.game.entity.player.Hand
+import com.github.steveice10.mc.protocol.data.game.entity.player.PositionElement
 import com.github.steveice10.mc.protocol.packet.ingame.client.ClientChatPacket
-import com.github.steveice10.mc.protocol.packet.ingame.client.ClientPluginMessagePacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket
+import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerMovementPacket
+import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerUseItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientConfirmTransactionPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.world.ClientTeleportConfirmPacket
@@ -14,6 +16,7 @@ import com.github.steveice10.mc.protocol.packet.ingame.server.ServerRespawnPacke
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerTitlePacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerChangeHeldItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPositionRotationPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.scoreboard.ServerScoreboardObjectivePacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerConfirmTransactionPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerOpenWindowPacket
 import com.github.steveice10.packetlib.Client
@@ -23,8 +26,6 @@ import com.github.steveice10.packetlib.event.session.SessionAdapter
 import com.github.steveice10.packetlib.packet.Packet
 import com.github.steveice10.packetlib.tcp.TcpSessionFactory
 import cute.nahida.hytbot.HytBot
-import cute.nahida.hytbot.handle.script.utils.misc.Status
-import cute.nahida.hytbot.utils.math.RandomUtils
 
 @Suppress("MemberVisibilityCanBePrivate")
 class Bot (
@@ -67,13 +68,11 @@ class Bot (
                 if (script.isEnable) script.bindScript?.onPacket(packet)
                 when (packet) {
                     is ServerJoinGamePacket -> {
+                        if (player.entityId == 0) HytBot.logger.info("[$id] 连接服务器成功")
+
                         player.entityId = packet.entityId
                         containerConfirmId = 1
                         inventoryConfirmId = 0
-                        HytBot.logger.info("[$id] 连接服务器成功 entityId: ${player.entityId}")
-
-                        sendPacket(ClientPluginMessagePacket("MC|Brand", "fml,forge".toByteArray(Charsets.UTF_8)))
-                        sendPacket(ClientPluginMessagePacket("REGISTER", mutableListOf("FML|HS", "FML", "FML|MP", "Forge", "armourers", "hyt0", "germplugin-netease", "VexView").joinToString('\u0000'.toString()).toByteArray(Charsets.UTF_8)))
 
                         if (script.isEnable) script.bindScript?.onJoinGame()
                     }
@@ -81,51 +80,60 @@ class Bot (
                         containerConfirmId = 1
                         inventoryConfirmId = 0
                     }
-                    is ServerChatPacket -> {
-                        val message = packet.message
-                        HytBot.logger.info("[$id] ${message.fullText}")
-                        if (script.isEnable) script.bindScript?.onMessage(message.fullText)
-                    }
-                    is ServerTitlePacket -> {
-                        HytBot.logger.info("[$id] 标题信息: ${packet.title?.fullText} ${packet.subtitle?.fullText}")
-                        if (script.isEnable) script.bindScript?.onTitle(packet.title?.fullText, packet.subtitle?.fullText)
-                    }
+                    is ServerChatPacket -> if (script.isEnable) script.bindScript?.onMessage(packet.message.fullText)
+                    is ServerTitlePacket -> if (script.isEnable) script.bindScript?.onTitle(packet.title?.fullText, packet.subtitle?.fullText)
                     is ServerPlayerPositionRotationPacket -> {
-                        if (position != packet) {
-                            position.setPosition(packet)
-                            if (script.isEnable) script.bindScript?.onTeleport(position)
-                            HytBot.logger.info("[$id] 玩家被传送  $position   teleportId: ${packet.teleportId}")
-                            if (packet.teleportId != 0) sendPacket(ClientTeleportConfirmPacket(packet.teleportId))
-                        }
+                        var posX = packet.x
+                        var posY = packet.y
+                        var posZ = packet.z
+                        var yaw = packet.yaw
+                        var pitch = packet.pitch
+
+                        if (packet.relativeElements.contains(PositionElement.X)) posX += position.x
+                        if (packet.relativeElements.contains(PositionElement.Y)) posY += position.y
+                        if (packet.relativeElements.contains(PositionElement.Z)) posZ += position.z
+                        if (packet.relativeElements.contains(PositionElement.YAW)) yaw += position.yaw
+                        if (packet.relativeElements.contains(PositionElement.PITCH)) pitch += position.pitch
+
+                        position.x = posX
+                        position.y = posY
+                        position.z = posZ
+                        position.yaw = yaw
+                        position.pitch = pitch
+                        position.fixPosition()
+
+                        // 666还能这样写
+                        // sendPacket(ClientTeleportConfirmPacket(packet.teleportId))
+                        // sendPacket(ClientPlayerPositionRotationPacket(false, position.x + 9999, position.y, position.z, position.yaw, position.pitch))
+
+                        if (script.isEnable) script.bindScript?.onTeleport(position)
                     }
-                    is ServerPlayerChangeHeldItemPacket -> {
-                        HytBot.logger.info("[$id] 快捷栏变更: ${packet.slot}")
-                        this@Bot.slot = packet.slot
-                    }
+                    is ServerPlayerChangeHeldItemPacket -> this@Bot.slot = packet.slot
                     is ServerConfirmTransactionPacket -> {
                         sendPacket(ClientConfirmTransactionPacket(packet.windowId,
                             packet.actionId,
                             true
                         ))
                     }
-                    is ServerOpenWindowPacket -> {
-                        HytBot.logger.info("[$id] 容器已打开: ${packet.windowId}")
-                        containerConfirmId = 1
-                    }
+                    is ServerOpenWindowPacket -> containerConfirmId = 1
+                    is ServerScoreboardObjectivePacket -> if (script.isEnable) script.bindScript?.onUpdateScoreboardTitle(packet.displayName ?: "")
                 }
             }
 
             override fun disconnected(event: DisconnectedEvent) {
+                player.entityId = 0
+
                 event?.cause.let {
                     HytBot.logger.warn("[$id] 断开连接: ${event.reason}", event.cause)
                 } ?: run {
                     HytBot.logger.info("[$id] 断开连接: ${event.reason}")
                 }
+
                 this@Bot.needReconnect = when {
                     event.reason == BotsStaticText.DISCONNECT_BY_USER -> false
                     event.reason == "验证失败,请尝试重启启动器!" -> false
                     event.reason.startsWith("[封禁]") -> false
-                    else -> true
+                    else -> false
                 }
             }
         })

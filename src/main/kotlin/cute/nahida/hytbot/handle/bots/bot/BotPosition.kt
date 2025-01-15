@@ -10,13 +10,13 @@ open class BotPosition (
     var yaw: Float = 0F,
     var pitch: Float = 0F
 ) {
-    fun setPosition(packet: ServerPlayerPositionRotationPacket) {
-        this.x = packet.x
-        this.y = packet.y
-        this.z = packet.z
+    fun fixPosition() {
+        this.x = this.x.coerceIn(-3.0E7..3.0E7)
+        this.z = this.z.coerceIn(-3.0E7..3.0E7)
 
-        this.yaw = packet.yaw
-        this.pitch = packet.pitch 
+        this.yaw %= 360F
+        this.pitch %= 360F
+        this.pitch = this.pitch.coerceIn(-90F..90F)
     }
 
     override fun equals(other: Any?): Boolean {

@@ -4,7 +4,6 @@ import com.github.steveice10.packetlib.packet.Packet
 import cute.nahida.hytbot.handle.bots.bot.Bot
 import cute.nahida.hytbot.handle.bots.bot.BotPosition
 import cute.nahida.hytbot.handle.script.manager.ScriptHytJoinGameManager
-import cute.nahida.hytbot.handle.script.utils.misc.StaticCommands
 import cute.nahida.hytbot.handle.script.utils.misc.Status
 
 abstract class Script(
@@ -69,4 +68,8 @@ abstract class Script(
      * 收到数据包时调用
      */
     open fun onPacket(packet: Packet) { }
+    /**
+     * 更新计分板标题时调用
+     */
+    open fun onUpdateScoreboardTitle(title: String) { }
 }
