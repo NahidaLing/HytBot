@@ -71,5 +71,7 @@ abstract class Script(
     /**
      * 更新计分板标题时调用
      */
-    open fun onUpdateScoreboardTitle(title: String) { }
+    open fun onUpdateScoreboardTitle(title: String) {
+        if (title.contains("§c✿ §b§l花雨庭 §c✿")) bot.script.status = Status.HUB
+    }
 }
