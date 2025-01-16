@@ -6,7 +6,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
 class BotsManager(@JvmField val base: HytBot) {
-    val bots: HashMap<String, Bot> = hashMapOf()
+    val bots = linkedMapOf<String, Bot>()
 
 
     /**
