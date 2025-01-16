@@ -26,6 +26,8 @@ open class BotBindScript (
         set (value) {
             if (field == value) return
 
+            HytBot.logger.debug("[${bot.id}] 状态更新: ${value.name}")
+
             when (value) {
                 Status.ROOM_WAIT_START -> bot.sendMessage(HytBot.configManager.configs.message.on_join_game)
                 Status.ROOM_STARTED -> bot.sendMessage(HytBot.configManager.configs.message.on_game_started)

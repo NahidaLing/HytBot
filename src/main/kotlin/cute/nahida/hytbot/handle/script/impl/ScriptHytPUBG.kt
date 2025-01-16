@@ -22,6 +22,6 @@ class ScriptHytPUBG: Script("PUBG", ScriptInfo(ScriptInfo.SuperAccountMode.SINGL
     override fun onUpdateScoreboardTitle(title: String) {
         super.onUpdateScoreboardTitle(title)
 
-        if (title == "§e§l代号:吃鸡" && bot.script.status == Status.HUB) bot.script.status = Status.ROOM_WAIT_START
+        if (title == "§e§l代号:吃鸡" && bot.script.status == Status.UNKNOWN) bot.script.status = Status.ROOM_WAIT_START
     }
 }

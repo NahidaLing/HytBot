@@ -46,7 +46,7 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.D
                 joinGameManager.resetTryCount()
                 bot.tryUseItem()
             }
-            Status.ROOM_STARTED -> { }
+            else -> { }
         }
     }
 

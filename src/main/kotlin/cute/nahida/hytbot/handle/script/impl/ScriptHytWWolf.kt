@@ -23,7 +23,7 @@ class ScriptHytWWolf: Script("WWolf", ScriptInfo(ScriptInfo.SuperAccountMode.MUL
     override fun onUpdateScoreboardTitle(title: String) {
         super.onUpdateScoreboardTitle(title)
 
-        if (title.contains("狼人杀") && bot.script.status == Status.HUB) bot.script.status = Status.ROOM_WAIT_START
+        if (title.contains("狼人杀") && bot.script.status == Status.UNKNOWN) bot.script.status = Status.ROOM_WAIT_START
     }
 
 }

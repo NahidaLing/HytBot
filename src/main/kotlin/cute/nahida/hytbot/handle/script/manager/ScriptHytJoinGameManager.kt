@@ -3,6 +3,7 @@ package cute.nahida.hytbot.handle.script.manager
 import cute.nahida.hytbot.handle.script.Script
 import cute.nahida.hytbot.handle.script.ScriptInfo
 import cute.nahida.hytbot.handle.script.utils.misc.StaticCommands
+import cute.nahida.hytbot.handle.script.utils.misc.Status
 import cute.nahida.hytbot.handle.script.utils.packet.HytPacketUtils
 import java.util.concurrent.locks.ReentrantLock
 
@@ -30,10 +31,12 @@ class ScriptHytJoinGameManager {
 
                     Thread.sleep(200)
 
-                    script.bot.sendPacket(HytPacketUtils.generatePacketHytGermOpenSelectMenu())
-                    script.bot.sendPacket(HytPacketUtils.generatePacketHytGermJoinGame(game))
+                    if (script.bot.script.status == Status.HUB) {
+                        script.bot.sendPacket(HytPacketUtils.generatePacketHytGermOpenSelectMenu())
+                        script.bot.sendPacket(HytPacketUtils.generatePacketHytGermJoinGame(game))
 
-                    Thread.sleep(1000)
+                        Thread.sleep(1000)
+                    }
                 } else {
                     resetTryCount()
                     leave(force = true)

@@ -2,6 +2,10 @@ package cute.nahida.hytbot.handle.script.utils.misc
 
 enum class Status(val code: Int) {
     /**
+     * 未知状态
+     */
+    UNKNOWN(-999),
+    /**
      * 大厅
      */
     HUB(0),

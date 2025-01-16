@@ -27,6 +27,7 @@ import com.github.steveice10.packetlib.packet.Packet
 import com.github.steveice10.packetlib.tcp.TcpSessionFactory
 import cute.nahida.hytbot.HytBot
 import cute.nahida.hytbot.handle.bots.BotsManager
+import cute.nahida.hytbot.handle.script.utils.misc.Status
 
 @Suppress("MemberVisibilityCanBePrivate")
 class Bot (
@@ -74,6 +75,7 @@ class Bot (
                     is ServerJoinGamePacket -> {
                         if (player.entityId == 0) HytBot.logger.info("[$id] 连接服务器成功")
 
+                        script.status = Status.UNKNOWN
                         player.entityId = packet.entityId
                         containerConfirmId = 1
                         inventoryConfirmId = 0

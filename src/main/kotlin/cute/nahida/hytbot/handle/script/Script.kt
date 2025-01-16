@@ -43,6 +43,8 @@ abstract class Script(
             Status.HUB -> joinGameManager.join()
             Status.ROOM_WAIT_START -> joinGameManager.resetTryCount()
             Status.ROOM_STARTED -> joinGameManager.leave(force = false)
+
+            else -> { }
         }
     }
     /**
