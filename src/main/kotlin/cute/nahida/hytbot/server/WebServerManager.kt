@@ -102,7 +102,9 @@ class WebServerManager {
         @Throws(IOException::class)
         override fun handle(t: HttpExchange) {
             try {
-                HytBot.logger.info("[WebServer] ${t.remoteAddress.hostString}:${t.remoteAddress.port}  ${t.requestMethod} ${t.requestURI.path}")
+                if (t.requestURI.path != "/ping") {
+                    HytBot.logger.info("[WebServer] ${t.remoteAddress.hostString}:${t.remoteAddress.port}  ${t.requestMethod} ${t.requestURI.path}")
+                }
                 t.responseHeaders["Access-Control-Allow-Origin"] = "*"
                 when (t.requestMethod) {
                     "OPTIONS" -> {
