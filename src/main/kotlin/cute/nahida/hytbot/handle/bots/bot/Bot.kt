@@ -131,9 +131,9 @@ class Bot (
 
                 this@Bot.needReconnect = when {
                     event.reason == BotsStaticText.DISCONNECT_BY_USER -> false
-                    event.reason == "验证失败,请尝试重启启动器!" -> false
-                    event.reason.startsWith("[封禁]") -> false
-                    else -> false
+                    event.reason.contains("验证失败") -> false
+                    event.reason.contains("封禁") -> false
+                    else -> true
                 }
             }
         })
