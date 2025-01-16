@@ -1,8 +1,5 @@
 package cute.nahida.hytbot.handle.script.impl
 
-import com.github.steveice10.mc.protocol.packet.ingame.server.scoreboard.ServerScoreboardObjectivePacket
-import com.github.steveice10.packetlib.packet.Packet
-import cute.nahida.hytbot.HytBot
 import cute.nahida.hytbot.handle.script.Script
 import cute.nahida.hytbot.handle.script.ScriptInfo
 import cute.nahida.hytbot.handle.script.manager.ScriptHytJoinGameData
@@ -22,12 +19,9 @@ class ScriptHytPUBG: Script("PUBG", ScriptInfo(ScriptInfo.SuperAccountMode.SINGL
         }
     }
 
-    override fun onPacket(packet: Packet) {
-        when(packet) {
-            is ServerScoreboardObjectivePacket -> if (packet.displayName == "§e§l代号:吃鸡" && bot.script.status == Status.HUB) {
-                bot.script.status = Status.ROOM_WAIT_START
-                if (!bot.script.superAccount) bot.sendMessage(HytBot.configManager.configs.message.on_join_game)
-            }
-        }
+    override fun onUpdateScoreboardTitle(title: String) {
+        super.onUpdateScoreboardTitle(title)
+
+        if (title == "§e§l代号:吃鸡" && bot.script.status == Status.HUB) bot.script.status = Status.ROOM_WAIT_START
     }
 }

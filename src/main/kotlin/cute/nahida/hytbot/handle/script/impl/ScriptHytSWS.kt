@@ -13,16 +13,17 @@ open class ScriptHytSWS(name: String = "SW-S"): Script(name, ScriptInfo(ScriptIn
     }
 
     override fun onMessage(msg: String) {
+        super.onMessage(msg)
+
         @Suppress("SpellCheckingInspection")
         if (msg == "已为你自动开启 伤害显示, 输入 /shoff 关闭") bot.script.status = Status.ROOM_WAIT_START
 
-        super.onMessage(msg)
     }
 
     override fun onTitle(title: String?, subTitle: String?) {
-        if (subTitle == "§bFighting") bot.script.status = Status.ROOM_STARTED
-
         super.onTitle(title, subTitle)
+
+        if (subTitle == "§bFighting") bot.script.status = Status.ROOM_STARTED
     }
 
 }
