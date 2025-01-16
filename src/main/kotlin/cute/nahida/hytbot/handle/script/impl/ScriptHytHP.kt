@@ -20,8 +20,6 @@ class ScriptHytHP: Script("HP", ScriptInfo(ScriptInfo.SuperAccountMode.SINGLE)) 
     override fun onUpdateScoreboardTitle(title: String) {
         super.onUpdateScoreboardTitle(title)
 
-        println(title)
-
         if (title == "§6§l烫手的山芋" && bot.script.status == Status.HUB) bot.script.status = Status.ROOM_WAIT_START
     }
 
