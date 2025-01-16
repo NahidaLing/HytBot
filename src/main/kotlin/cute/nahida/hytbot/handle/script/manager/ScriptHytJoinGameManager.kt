@@ -25,7 +25,7 @@ class ScriptHytJoinGameManager {
             runCatching {
                 tryCount++
 
-                if (tryCount < 4) {
+                if (tryCount <= 2) {
                     script.bot.tryUseItem()
 
                     Thread.sleep(200)
