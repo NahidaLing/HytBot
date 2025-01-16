@@ -26,9 +26,11 @@ import com.github.steveice10.packetlib.event.session.SessionAdapter
 import com.github.steveice10.packetlib.packet.Packet
 import com.github.steveice10.packetlib.tcp.TcpSessionFactory
 import cute.nahida.hytbot.HytBot
+import cute.nahida.hytbot.handle.bots.BotsManager
 
 @Suppress("MemberVisibilityCanBePrivate")
 class Bot (
+    val manager: BotsManager,
     val id: String
 ) {
     /**
@@ -145,7 +147,11 @@ class Bot (
         })
 
         HytBot.logger.info("[$id] 开始连接...")
-        client.session.connect(false)
+        synchronized(manager) {
+            client.session.connect(true)
+            Thread.sleep(manager.base.configManager.configs.bot.loginDelay)
+        }
+
     }
     fun update(): Boolean {
         if (this@Bot.invalid) return false

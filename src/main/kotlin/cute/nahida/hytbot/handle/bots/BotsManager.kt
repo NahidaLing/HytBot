@@ -17,11 +17,9 @@ class BotsManager(@JvmField val base: HytBot) {
      */
     fun login(startPort: Int, count: Int = 1, ip: String = HytBot.configManager.configs.connect) {
         for(i in startPort..<startPort + count) {
-            val bot = Bot(i.toString())
+            val bot = Bot(this, i.toString())
             if (!check(i.toString())) bot.start(ip, i)
             bots[i.toString()] = bot
-
-            Thread.sleep(base.configManager.configs.bot.loginDelay)
         }
     }
     /**
