@@ -133,6 +133,7 @@ class Bot (
                     event.reason == BotsStaticText.DISCONNECT_BY_USER -> false
                     event.reason.contains("验证失败") -> false
                     event.reason.contains("封禁") -> false
+                    event.reason.contains("Connection refused") -> false
                     else -> true
                 }
             }
