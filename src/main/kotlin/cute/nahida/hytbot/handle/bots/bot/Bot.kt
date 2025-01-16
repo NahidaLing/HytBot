@@ -65,7 +65,9 @@ class Bot (
         client.session.addListener(object : SessionAdapter() {
             override fun packetReceived(event: PacketReceivedEvent) {
                 val packet = event.getPacket<Packet>()
+
                 if (script.isEnable) script.bindScript?.onPacket(packet)
+
                 when (packet) {
                     is ServerJoinGamePacket -> {
                         if (player.entityId == 0) HytBot.logger.info("[$id] 连接服务器成功")
@@ -80,7 +82,10 @@ class Bot (
                         containerConfirmId = 1
                         inventoryConfirmId = 0
                     }
-                    is ServerChatPacket -> if (script.isEnable) script.bindScript?.onMessage(packet.message.fullText)
+                    is ServerChatPacket -> {
+                        if (script.superAccount) HytBot.logger.info("[$id] ${packet.message.fullText}")
+                        if (script.isEnable) script.bindScript?.onMessage(packet.message.fullText)
+                    }
                     is ServerTitlePacket -> if (script.isEnable) script.bindScript?.onTitle(packet.title?.fullText, packet.subtitle?.fullText)
                     is ServerPlayerPositionRotationPacket -> {
                         var posX = packet.x
