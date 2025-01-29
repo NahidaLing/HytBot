@@ -20,6 +20,11 @@ class Config {
          */
         @JvmField
         var loginDelay = 1000L
+        /**
+         * 关闭 Myth 的绕绿功能
+         */
+        @JvmField
+        var hackerBrand = false
     }
 
     @JvmField

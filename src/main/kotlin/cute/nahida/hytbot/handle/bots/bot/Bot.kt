@@ -4,6 +4,7 @@ import com.github.steveice10.mc.protocol.MinecraftProtocol
 import com.github.steveice10.mc.protocol.data.game.entity.player.Hand
 import com.github.steveice10.mc.protocol.data.game.entity.player.PositionElement
 import com.github.steveice10.mc.protocol.packet.ingame.client.ClientChatPacket
+import com.github.steveice10.mc.protocol.packet.ingame.client.ClientPluginMessagePacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerMovementPacket
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket
@@ -79,6 +80,11 @@ class Bot (
                         player.entityId = packet.entityId
                         containerConfirmId = 1
                         inventoryConfirmId = 0
+
+                        if (manager.base.configManager.configs.bot.hackerBrand) {
+                            sendPacket(ClientPluginMessagePacket("REGISTER", mutableListOf("FML|HS", "FML", "FML|MP", "Forge", "armourers", "hyt0", "germplugin-netease", "VexView").joinToString("\u0000").toByteArray(Charsets.UTF_8)))
+                            sendPacket(ClientPluginMessagePacket("MC|Brand", "Forge".toByteArray(Charsets.UTF_8)))
+                        }
 
                         if (script.isEnable) script.bindScript?.onJoinGame()
                     }
