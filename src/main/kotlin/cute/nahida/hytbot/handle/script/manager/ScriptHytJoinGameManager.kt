@@ -35,12 +35,12 @@ class ScriptHytJoinGameManager {
                         script.bot.sendPacket(HytPacketUtils.generatePacketHytGermOpenSelectMenu())
                         script.bot.sendPacket(HytPacketUtils.generatePacketHytGermJoinGame(game))
 
-                        Thread.sleep(1000)
+                        Thread.sleep(3000)
                     }
                 } else {
                     resetTryCount()
                     leave(force = true)
-                    Thread.sleep(2000)
+                    Thread.sleep(5000)
                 }
             }
             lock.unlock()
