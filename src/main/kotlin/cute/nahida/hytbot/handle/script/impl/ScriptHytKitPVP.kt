@@ -22,45 +22,51 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.D
             BotPosition(-38.5, 212.0, 21.5, 269.90012f, 5.0f),
             BotPosition(-40.0, 213.0, 22.0, 270.0f, 5.0f),
             // 房间类型 B
-            BotPosition(15.5, 107.0, -2.5 ,0f ,0f),
-            BotPosition(15.824555091786351, 107.0, -0.5095520156729517 ,270.0f, 5.0f)
+            // BotPosition(15.5, 107.0, -2.5 ,0f ,0f),
+            // BotPosition(15.824555091786351, 107.0, -0.5095520156729517 ,270.0f, 5.0f)
         )
         private val GOOD_POSITION = mutableListOf(
             // 房间类型 A
             BotPosition(31.0, 65.0, -10.0, 0f, 0f),
             // 房间类型 B
-            BotPosition(59.5, 69.0, 7.5, 90.0f, 0f)
+            // BotPosition(59.5, 69.0, 7.5, 90.0f, 0f)
         )
     }
+
+    var aliveTick = 0
+    var isDone = false
 
     init {
         joinGameManager.game = ScriptHytJoinGameData(2, "FIGHT/kb-game")
     }
 
     override fun onUpdate() {
-        bot.slot = 0
+        super.onUpdate()
 
-        when (bot.script.status) {
-            Status.HUB -> joinGameManager.join()
-            Status.ROOM_WAIT_START -> {
-                joinGameManager.resetTryCount()
+        if (bot.script.status == Status.ROOM_WAIT_START) {
+            aliveTick++
+
+            if (aliveTick > 50) bot.script.status = Status.ROOM_STARTED
+            if (!isDone) {
+                bot.slot = 0
                 bot.tryUseItem()
             }
-            else -> { }
         }
     }
 
     override fun onTeleport(position: BotPosition) {
         when {
-            IN_SELECT_KIT_ROOM.contains(position) -> {
-                HytBot.logger.debug("[KitHelper] 回到选择职业大厅")
+            IN_SELECT_KIT_ROOM.contains(position) -> if (bot.script.status == Status.UNKNOWN) {
+                HytBot.logger.info("[KitHelper] 回到选择职业大厅")
                 bot.script.status = Status.ROOM_WAIT_START
+                aliveTick = 0
+                isDone = false
             }
-            GOOD_POSITION == position ->  {
-                HytBot.logger.debug("[KitHelper] 进入")
-                bot.script.status = Status.ROOM_STARTED
+            GOOD_POSITION.contains(position) -> if (!isDone) {
+                HytBot.logger.info("[KitHelper] 到达目标位置")
+                isDone = true
             }
-            else -> if (bot.script.status != Status.HUB) joinGameManager.leave()
+            else -> if (bot.script.status == Status.ROOM_WAIT_START) bot.script.status = Status.ROOM_STARTED
         }
     }
 

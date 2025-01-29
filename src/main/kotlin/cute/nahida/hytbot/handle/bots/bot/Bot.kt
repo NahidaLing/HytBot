@@ -115,7 +115,7 @@ class Bot (
                         // sendPacket(ClientTeleportConfirmPacket(packet.teleportId))
                         // sendPacket(ClientPlayerPositionRotationPacket(false, position.x + 9999, position.y, position.z, position.yaw, position.pitch))
 
-                        if (script.isEnable) script.bindScript?.onTeleport(position)
+                        if (script.isEnable && packet.relativeElements.isEmpty()) script.bindScript?.onTeleport(position)
                     }
                     is ServerPlayerChangeHeldItemPacket -> this@Bot.slot = packet.slot
                     is ServerConfirmTransactionPacket -> {
