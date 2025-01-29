@@ -2,8 +2,8 @@ package cute.nahida.hytbot.handle.bots
 
 import cute.nahida.hytbot.HytBot
 import cute.nahida.hytbot.handle.bots.bot.Bot
+import java.util.concurrent.Callable
 import java.util.concurrent.Executors
-import java.util.concurrent.Future
 
 class BotsManager(@JvmField val base: HytBot) {
     val bots = linkedMapOf<String, Bot>()
@@ -70,6 +70,9 @@ class BotsManager(@JvmField val base: HytBot) {
     fun addReconnectTask(force: Boolean = false) {
         bots.forEach {  addReconnectTask(it.key, force) }
     }
+
+    private val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+
     /**
      * 为所有机器人执行一遍更新
      * 执行可以刷新一次机器人状态 例如让机器人执行重新连接
@@ -78,17 +81,14 @@ class BotsManager(@JvmField val base: HytBot) {
      * @return 固定为 true  用于接入updateManage
      */
     fun update(): Boolean {
-        // kotlin await 不能用 我裂开了
-        val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
-        val futures: List<Future<*>> = bots.values.map { bot ->
-            executor.submit {
+        val tasks = bots.values.map { bot ->
+            Callable {
                 bot.update()
             }
         }
 
-        futures.forEach { it.get() }
+        executor.invokeAll(tasks).forEach { it.get() }
 
-        executor.shutdown()
         return true
     }
 }
