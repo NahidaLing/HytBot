@@ -6,7 +6,9 @@ import cute.nahida.hytbot.handle.script.manager.ScriptHytJoinGameData
 import cute.nahida.hytbot.handle.script.utils.misc.Status
 
 class ScriptHytWWolf: Script("WWolf", ScriptInfo(ScriptInfo.SuperAccountMode.MULTI)) {
-
+    companion object {
+        const val TIME_OUT = 5000L
+    }
     init {
         joinGameManager.game = ScriptHytJoinGameData(5, "LEISURE/ww-game")
     }
@@ -24,7 +26,7 @@ class ScriptHytWWolf: Script("WWolf", ScriptInfo(ScriptInfo.SuperAccountMode.MUL
         super.onUpdate()
 
         startTime
-            ?.takeIf { it + 8000L <= System.currentTimeMillis() }
+            ?.takeIf { it + TIME_OUT <= System.currentTimeMillis() }
             ?.also { bot.script.status = Status.ROOM_STARTED }
             ?.also { startTime = null }
     }
