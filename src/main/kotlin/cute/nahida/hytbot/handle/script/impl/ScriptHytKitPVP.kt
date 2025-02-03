@@ -46,7 +46,7 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.D
         if (bot.script.status == Status.ROOM_WAIT_START) {
             aliveTick++
 
-            if (aliveTick > 50) bot.script.status = Status.ROOM_STARTED
+            if (aliveTick > 20) bot.script.status = Status.ROOM_STARTED
             if (!isDone) {
                 bot.slot = 0
                 bot.tryUseItem()
@@ -71,9 +71,8 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.D
     }
 
     override fun onMessage(msg: String) {
-        when (msg) {
-            "§a§l无敌状态将于§c§l1§a§l秒后结束!" -> doRemoveArmor()
-        }
+        if (msg.contains("你选择了职业")) aliveTick = 0
+        if (msg.contains("§a§l无敌状态将于§c§l1§a§l秒后结束!")) doRemoveArmor()
     }
 
     override fun onPacket(packet: Packet) {
@@ -96,5 +95,7 @@ class ScriptHytKitPVP: Script("KitPVP", ScriptInfo(ScriptInfo.SuperAccountMode.D
             bot.sendPacket(ClientWindowActionPacket(0, actionId, i, ItemStack(0), WindowAction.SHIFT_CLICK_ITEM, ShiftClickItemParam.LEFT_CLICK))
             bot.sendPacket(ClientConfirmTransactionPacket(0, actionId, true))
         }
+
+        aliveTick = 0
     }
 }
