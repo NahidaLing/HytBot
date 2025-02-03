@@ -93,7 +93,7 @@ class Bot (
                         inventoryConfirmId = 0
                     }
                     is ServerChatPacket -> {
-                        if (script.superAccount) HytBot.logger.info("[$id] ${packet.message.fullText}")
+                        if (script.bindScript?.shouldLoggerMsg() ?: script.superAccount) HytBot.logger.info("[$id] ${packet.message.fullText}")
                         if (script.isEnable) script.bindScript?.onMessage(packet.message.fullText)
                     }
                     is ServerTitlePacket -> if (script.isEnable) script.bindScript?.onTitle(packet.title?.fullText, packet.subtitle?.fullText)
@@ -146,7 +146,7 @@ class Bot (
 
                 this@Bot.needReconnect = when {
                     event.reason == BotsStaticText.DISCONNECT_BY_USER -> false
-                    event.reason.contains("验证失败") -> false
+                    event.reason.contains("失败") -> false
                     event.reason.contains("封禁") -> false
                     event.reason.contains("Connection refused") -> false
                     else -> true

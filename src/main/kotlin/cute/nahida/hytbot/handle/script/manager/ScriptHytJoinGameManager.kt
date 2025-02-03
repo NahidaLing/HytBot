@@ -12,6 +12,8 @@ class ScriptHytJoinGameManager {
     lateinit var game: ScriptHytJoinGameData
     lateinit var script: Script
 
+    var leaveDelay = 200L
+
     private val lock = ReentrantLock()
     private val lockLeave = ReentrantLock()
 
@@ -55,7 +57,7 @@ class ScriptHytJoinGameManager {
     fun leave(force: Boolean = false) {
         if (lockLeave.tryLock()) {
             if (script.info.superAccountMode != ScriptInfo.SuperAccountMode.DISABLE && script.bot.script.superAccount && !force) {
-                Thread.sleep(200)
+                Thread.sleep(leaveDelay)
             }
 
             script.bot.sendMessage(StaticCommands.COMMAND_HUB)

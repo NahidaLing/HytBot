@@ -76,4 +76,6 @@ abstract class Script(
     open fun onUpdateScoreboardTitle(title: String) {
         if (title.contains("§c✿ §b§l花雨庭 §c✿")) bot.script.status = Status.HUB
     }
+
+    open fun shouldLoggerMsg() = bot.script.superAccount
 }
