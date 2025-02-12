@@ -6,32 +6,36 @@ import cute.nahida.hytbot.HytBot
 import cute.nahida.hytbot.server.APIHandler
 import cute.nahida.hytbot.server.Handle
 import cute.nahida.hytbot.server.Response
-import cute.nahida.hytbot.server.utils.throwables.ParamInvalidException
-import cute.nahida.hytbot.server.utils.throwables.ParamNotFoundException
 
 class ListBots : APIHandler {
     override fun handle(handle: Handle): Response {
         val response = Response()
 
         val bots = JsonArray()
-        HytBot.botsManager.bots.forEach {
+        HytBot.botsManager.bots.onEach { (id, data) ->
             val obj = JsonObject()
-            obj.addProperty("id", it.key)
-            obj.addProperty("invalid", it.value.invalid)
-            obj.addProperty("hash", it.value.hashCode())
+            obj.addProperty("id", id)
+            obj.addProperty("invalid", data.invalid)
+            obj.addProperty("hash", data.hashCode())
 
-            val objConnect = JsonObject()
-            objConnect.addProperty("host", it.value.host)
-            objConnect.addProperty("port", it.value.port)
-            objConnect.addProperty("connected", it.value.isConnected())
-            obj.add("connect", objConnect)
+            val dataConnect = JsonObject()
+            dataConnect.addProperty("host", data.host)
+            dataConnect.addProperty("port", data.port)
+            dataConnect.addProperty("connected", data.isConnected())
+            obj.add("connect", dataConnect)
+
+            val dataProfiler = JsonObject()
+            dataProfiler.addProperty("name", data.player.profiler.name)
+            dataProfiler.addProperty("id", data.player.profiler.id.toString())
+            dataProfiler.addProperty("is_complete", data.player.profiler.isComplete)
+            obj.add("profiler", dataProfiler)
 
             val objScript = JsonObject()
-            objScript.addProperty("super_account", it.value.script.superAccount)
-            objScript.addProperty("script_status", it.value.script.isEnable)
-            objScript.addProperty("script_name", it.value.script.bindScript?.name)
-            objScript.addProperty("in_game_status_code", it.value.script.status.code)
-            objScript.addProperty("in_game_status_name", it.value.script.status.name)
+            objScript.addProperty("super_account", data.script.superAccount)
+            objScript.addProperty("script_status", data.script.isEnable)
+            objScript.addProperty("script_name", data.script.bindScript?.name)
+            objScript.addProperty("in_game_status_code", data.script.status.code)
+            objScript.addProperty("in_game_status_name", data.script.status.name)
             obj.add("script", objScript)
 
             bots.add(obj)

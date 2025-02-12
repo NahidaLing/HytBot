@@ -13,13 +13,27 @@ import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientConfi
 import com.github.steveice10.mc.protocol.packet.ingame.client.world.ClientTeleportConfirmPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerChatPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerJoinGamePacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.ServerPlayerListEntryPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerRespawnPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.ServerTabCompletePacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerTitlePacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityEffectPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityEquipmentPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityMetadataPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityPropertiesPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityStatusPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerAbilitiesPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerChangeHeldItemPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPositionRotationPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnPlayerPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.scoreboard.ServerDisplayScoreboardPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.scoreboard.ServerScoreboardObjectivePacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.scoreboard.ServerTeamPacket
+import com.github.steveice10.mc.protocol.packet.ingame.server.scoreboard.ServerUpdateScorePacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerConfirmTransactionPacket
 import com.github.steveice10.mc.protocol.packet.ingame.server.window.ServerOpenWindowPacket
+import com.github.steveice10.mc.protocol.packet.login.server.LoginSuccessPacket
+import com.github.steveice10.opennbt.tag.builtin.CompoundTag
 import com.github.steveice10.packetlib.Client
 import com.github.steveice10.packetlib.event.session.DisconnectedEvent
 import com.github.steveice10.packetlib.event.session.PacketReceivedEvent
@@ -73,11 +87,14 @@ class Bot (
                 if (script.isEnable) script.bindScript?.onPacket(packet)
 
                 when (packet) {
+                    is LoginSuccessPacket -> {
+                        HytBot.logger.info("[$id] 连接服务器成功    ${packet.profile.name} ${packet.profile.id}")
+                        player.profiler = packet.profile
+                    }
                     is ServerJoinGamePacket -> {
-                        if (player.entityId == 0) HytBot.logger.info("[$id] 连接服务器成功")
-
                         script.status = Status.UNKNOWN
                         player.entityId = packet.entityId
+
                         containerConfirmId = 1
                         inventoryConfirmId = 0
 
