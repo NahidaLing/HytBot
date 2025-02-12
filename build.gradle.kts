@@ -10,6 +10,7 @@ plugins {
 repositories {
     mavenCentral()
     maven("https://jitpack.io")
+    maven("https://darkmeow.nekocurit.asia/maven/") // https://darkmeowteam.github.io/maven/
 }
 
 dependencies {
@@ -27,6 +28,8 @@ dependencies {
     implementation("com.github.steveice10:packetlib:1.2")
 
     implementation("com.google.code.gson:gson:2.11.0")
+
+    implementation("net.darkmeow:IRCClient-all:1.1.0205")
 }
 
 application {

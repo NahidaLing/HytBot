@@ -43,6 +43,14 @@ import com.github.steveice10.packetlib.tcp.TcpSessionFactory
 import cute.nahida.hytbot.HytBot
 import cute.nahida.hytbot.handle.bots.BotsManager
 import cute.nahida.hytbot.handle.script.utils.misc.Status
+import net.darkmeow.irc.client.IRCClient
+import net.darkmeow.irc.client.enums.EnumResultLogin
+import net.darkmeow.irc.client.interfaces.IRCClientProvider
+import net.darkmeow.irc.client.listener.IRCClientListenableSimple
+import net.darkmeow.irc.client.network.IRCClientOptions
+import net.darkmeow.irc.data.ClientBrandData
+import net.darkmeow.irc.data.DataSessionOptions
+import net.darkmeow.irc.data.PlayerSessionData
 
 @Suppress("MemberVisibilityCanBePrivate")
 class Bot (
@@ -65,6 +73,15 @@ class Bot (
 
     var player = BotPlayer()
     var position = BotPosition()
+
+    val irc = IRCClient.newInstance(
+        IRCClientListenableSimple(),
+        IRCClientOptions(
+            manager.base.configManager.configs.irc.server.host,
+            manager.base.configManager.configs.irc.server.port,
+            manager.base.configManager.configs.irc.server.key
+        )
+    )
 
     var containerConfirmId = 1
     var inventoryConfirmId = 0
@@ -90,6 +107,40 @@ class Bot (
                     is LoginSuccessPacket -> {
                         HytBot.logger.info("[$id] 连接服务器成功    ${packet.profile.name} ${packet.profile.id}")
                         player.profiler = packet.profile
+
+                        if (manager.base.configManager.configs.irc.enable) {
+                            Thread {
+                                irc.connect()
+                                irc.login(
+                                    manager.base.configManager.configs.irc.login.name,
+                                    manager.base.configManager.configs.irc.login.token,
+                                    ClientBrandData(
+                                        manager.base.configManager.configs.irc.login.brand.id,
+                                        manager.base.configManager.configs.irc.login.brand.hash,
+                                        manager.base.configManager.configs.irc.login.brand.version_id,
+                                        manager.base.configManager.configs.irc.login.brand.version_name
+                                    ),
+                                    false
+                                )
+                                    ?.takeIf { it == EnumResultLogin.SUCCESS }
+                                    ?.also {
+                                        irc.uploadSessionOptions(
+                                            DataSessionOptions(
+                                                PlayerSessionData(player.profiler.name, player.profiler.id),
+                                                null,
+                                                null,
+                                                1000000,
+                                                "§a",
+                                                true
+                                            )
+                                        )
+                                        HytBot.logger.info("[$id] IRC 服务器连接成功")
+                                    }
+                                    ?: run {
+                                        HytBot.logger.warn("[$id] IRC 服务器连接失败")
+                                    }
+                            }.start()
+                        }
                     }
                     is ServerJoinGamePacket -> {
                         script.status = Status.UNKNOWN
@@ -168,6 +219,8 @@ class Bot (
                     event.reason.contains("Connection refused") -> false
                     else -> true
                 }
+
+                irc.disconnect()
             }
         })
 
