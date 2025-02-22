@@ -30,13 +30,19 @@ class ListBots : APIHandler {
             dataProfiler.addProperty("is_complete", data.player.profiler.isComplete)
             obj.add("profiler", dataProfiler)
 
-            val objScript = JsonObject()
-            objScript.addProperty("super_account", data.script.superAccount)
-            objScript.addProperty("script_status", data.script.isEnable)
-            objScript.addProperty("script_name", data.script.bindScript?.name)
-            objScript.addProperty("in_game_status_code", data.script.status.code)
-            objScript.addProperty("in_game_status_name", data.script.status.name)
-            obj.add("script", objScript)
+            val dataScript = JsonObject()
+            dataScript.addProperty("super_account", data.script.superAccount)
+            dataScript.addProperty("script_status", data.script.isEnable)
+            dataScript.addProperty("script_name", data.script.bindScript?.name)
+            dataScript.addProperty("in_game_status_code", data.script.status.code)
+            dataScript.addProperty("in_game_status_name", data.script.status.name)
+            obj.add("script", dataScript)
+
+            val dataIRC = JsonObject()
+            dataIRC.addProperty("enable", data.irc != null)
+            dataIRC.addProperty("online", data.irc?.isLogin ?: false)
+            dataIRC.addProperty("session", data.irc?.sessionManager?.selfSession?.uniqueId?.toString())
+            obj.add("irc", dataIRC)
 
             bots.add(obj)
         }

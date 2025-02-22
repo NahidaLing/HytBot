@@ -74,14 +74,7 @@ class Bot (
     var player = BotPlayer()
     var position = BotPosition()
 
-    val irc = IRCClient.newInstance(
-        IRCClientListenableSimple(),
-        IRCClientOptions(
-            manager.base.configManager.configs.irc.server.host,
-            manager.base.configManager.configs.irc.server.port,
-            manager.base.configManager.configs.irc.server.key
-        )
-    )
+    var irc: IRCClientProvider? = null
 
     var containerConfirmId = 1
     var inventoryConfirmId = 0
@@ -108,36 +101,50 @@ class Bot (
                         HytBot.logger.info("[$id] 连接服务器成功    ${packet.profile.name} ${packet.profile.id}")
                         player.profiler = packet.profile
 
+                        if (manager.base.configManager.configs.irc.enable && irc == null) {
+                            irc = IRCClient.newInstance(
+                                IRCClientListenableSimple(),
+                                IRCClientOptions(
+                                    manager.base.configManager.configs.irc.server.host,
+                                    manager.base.configManager.configs.irc.server.port,
+                                    manager.base.configManager.configs.irc.server.key
+                                )
+                            )
+                        }
+
                         if (manager.base.configManager.configs.irc.enable) {
                             Thread {
-                                irc.connect()
-                                irc.login(
-                                    manager.base.configManager.configs.irc.login.name,
-                                    manager.base.configManager.configs.irc.login.token,
-                                    ClientBrandData(
-                                        manager.base.configManager.configs.irc.login.brand.id,
-                                        manager.base.configManager.configs.irc.login.brand.hash,
-                                        manager.base.configManager.configs.irc.login.brand.version_id,
-                                        manager.base.configManager.configs.irc.login.brand.version_name
-                                    ),
-                                    false
-                                )
-                                    ?.takeIf { it == EnumResultLogin.SUCCESS }
-                                    ?.also {
-                                        irc.uploadSessionOptions(
-                                            DataSessionOptions(
-                                                PlayerSessionData(player.profiler.name, player.profiler.id),
-                                                null,
-                                                null,
-                                                1000000,
-                                                "§a",
-                                                true
-                                            )
+                                irc
+                                    ?.apply {
+                                        connect()
+                                        login(
+                                            manager.base.configManager.configs.irc.login.name,
+                                            manager.base.configManager.configs.irc.login.token,
+                                            ClientBrandData(
+                                                manager.base.configManager.configs.irc.login.brand.id,
+                                                manager.base.configManager.configs.irc.login.brand.hash,
+                                                manager.base.configManager.configs.irc.login.brand.version_id,
+                                                manager.base.configManager.configs.irc.login.brand.version_name
+                                            ),
+                                            false
                                         )
-                                        HytBot.logger.info("[$id] IRC 服务器连接成功")
-                                    }
-                                    ?: run {
-                                        HytBot.logger.warn("[$id] IRC 服务器连接失败")
+                                            ?.takeIf { it == EnumResultLogin.SUCCESS }
+                                            ?.also {
+                                                uploadSessionOptions(
+                                                    DataSessionOptions(
+                                                        PlayerSessionData(player.profiler.name, player.profiler.id),
+                                                        null,
+                                                        null,
+                                                        1000000,
+                                                        "§a",
+                                                        true
+                                                    )
+                                                )
+                                                HytBot.logger.info("[$id] IRC 服务器连接成功")
+                                            }
+                                            ?: run {
+                                                HytBot.logger.warn("[$id] IRC 服务器连接失败")
+                                            }
                                     }
                             }.start()
                         }
@@ -220,7 +227,7 @@ class Bot (
                     else -> true
                 }
 
-                irc.disconnect()
+                irc?.disconnect()
             }
         })
 
