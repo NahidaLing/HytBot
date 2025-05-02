@@ -11,12 +11,8 @@ class ScriptHytPUBG: Script("PUBG", ScriptInfo(ScriptInfo.SuperAccountMode.SINGL
         joinGameManager.game = ScriptHytJoinGameData(4, "TEAM_FIGHT/pubg-solo")
     }
 
-    override fun onTitle(title: String?, subTitle: String?) {
-        super.onTitle(title, subTitle)
-
-        when (title) {
-            "§a飞行中..." -> bot.script.status = Status.ROOM_STARTED
-        }
+    override fun onMessage(msg: String) {
+        if (msg.contains("§e§l飞行进度") || msg.contains("[代号吃鸡] 游戏开始") || msg.contains("[代号吃鸡] 空投将在10秒后降落到")) bot.script.status = Status.ROOM_STARTED
     }
 
     override fun onUpdateScoreboardTitle(title: String) {
