@@ -13,6 +13,7 @@ class ScriptManager {
             ScriptHytSWS::class.java, ScriptHytSWD::class.java,
             ScriptHytKitPVP::class.java,
             ScriptHytHP::class.java,
+            ScriptHytBattleWalls::class.java,
             ScriptHytReport::class.java
         )
             .takeIf { it.isNotEmpty() }
