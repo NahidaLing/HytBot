@@ -12,7 +12,8 @@ class ScriptManager {
             ScriptHytBWXP16::class.java, ScriptHytBWXP32::class.java,
             ScriptHytSWS::class.java, ScriptHytSWD::class.java,
             ScriptHytKitPVP::class.java,
-            ScriptHytHP::class.java
+            ScriptHytHP::class.java,
+            ScriptHytReport::class.java
         )
             .takeIf { it.isNotEmpty() }
             ?.map { it }
