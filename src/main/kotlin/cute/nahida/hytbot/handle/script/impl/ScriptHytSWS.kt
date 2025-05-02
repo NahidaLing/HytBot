@@ -15,6 +15,10 @@ open class ScriptHytSWS(name: String = "SW-S"): Script(name, ScriptInfo(ScriptIn
 
     companion object {
         var lastSuperAccount: Bot? = null
+
+        fun isInEloBoosterMode() = HytBot.botsManager.bots.values
+            .filter { it.script.bindScript is ScriptHytSWS }
+            .any { it.script.superAccount }
     }
 
     init {
@@ -22,18 +26,6 @@ open class ScriptHytSWS(name: String = "SW-S"): Script(name, ScriptInfo(ScriptIn
         joinGameManager.game = ScriptHytJoinGameData(0, "SKYWAR/nskywar")
     }
 
-    /*
-    override fun onUpdate() {
-        if (bot.script.status == Status.ROOM_STARTED) {
-            bot.sendMessage("/sw quit")
-            repeat(9) {
-                bot.sendMessage("/me 萌新月白 L")
-            }
-        }
-
-        super.onUpdate()
-    }
-    */
     override fun onMessage(msg: String) {
         super.onMessage(msg)
 
@@ -41,11 +33,12 @@ open class ScriptHytSWS(name: String = "SW-S"): Script(name, ScriptInfo(ScriptIn
         if (msg == "已为你自动开启 伤害显示, 输入 /shoff 关闭") {
             bot.script.status = Status.ROOM_WAIT_START
 
-            if (lastSuperAccount == null) {
+            if (lastSuperAccount == null || !HytBot.botsManager.bots.values.contains(lastSuperAccount)) {
                 lastSuperAccount = HytBot.botsManager.bots.values
                     .filter { it.script.bindScript is ScriptHytSWS }
                     .filter { it.script.superAccount }
                     .randomOrNull()
+                    ?.also { HytBot.logger.info("[SWHelper] 当前主号: ${it.player.profiler.name}") }
             }
 
         }
@@ -58,7 +51,7 @@ open class ScriptHytSWS(name: String = "SW-S"): Script(name, ScriptInfo(ScriptIn
     override fun onTitle(title: String?, subTitle: String?) {
         super.onTitle(title, subTitle)
 
-        if (subTitle == "§bFighting") {
+        if (subTitle == "§bFighting" && isInEloBoosterMode()) {
             if (shouldLoggerMsg()) {
                 lastSuperAccount = null
                 joinGameManager.leaveDelay = 2000L
