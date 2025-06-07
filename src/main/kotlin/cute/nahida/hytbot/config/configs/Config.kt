@@ -68,11 +68,6 @@ class Config {
              */
             @JvmField
             var port = 48088
-            /**
-             * IRC 服务器连接密钥
-             */
-            @JvmField
-            var key = "publicIRCTest123"
         }
 
         var login = IRCLogin()

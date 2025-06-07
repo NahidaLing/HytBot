@@ -28,13 +28,14 @@ import cute.nahida.hytbot.HytBot
 import cute.nahida.hytbot.handle.bots.BotsManager
 import cute.nahida.hytbot.handle.script.utils.misc.Status
 import net.darkmeow.irc.client.IRCClient
-import net.darkmeow.irc.client.enums.EnumResultLogin
+import net.darkmeow.irc.client.enums.EnumDisconnectType
 import net.darkmeow.irc.client.interfaces.IRCClientProvider
+import net.darkmeow.irc.client.interfaces.data.IRCDataSelfSessionInfo
 import net.darkmeow.irc.client.listener.IRCClientListenableSimple
 import net.darkmeow.irc.client.network.IRCClientOptions
-import net.darkmeow.irc.data.ClientBrandData
-import net.darkmeow.irc.data.DataSessionOptions
-import net.darkmeow.irc.data.PlayerSessionData
+import net.darkmeow.irc.data.DataClientBrand
+import net.darkmeow.irc.data.DataPlayInGameProfile
+import net.darkmeow.irc.data.DataUserState
 
 @Suppress("MemberVisibilityCanBePrivate")
 class Bot (
@@ -87,50 +88,53 @@ class Bot (
 
                         if (manager.base.configManager.configs.irc.enable && irc == null) {
                             irc = IRCClient.newInstance(
-                                IRCClientListenableSimple(),
-                                IRCClientOptions(
-                                    manager.base.configManager.configs.irc.server.host,
-                                    manager.base.configManager.configs.irc.server.port,
-                                    manager.base.configManager.configs.irc.server.key
-                                )
+                                 object : IRCClientListenableSimple() {
+                                     lateinit var client: IRCClientProvider
+
+                                     override fun onReadyLogin(client: IRCClientProvider) {
+                                         this.client = client
+                                         client.login(
+                                             manager.base.configManager.configs.irc.login.name,
+                                             manager.base.configManager.configs.irc.login.token,
+                                             false
+                                         )
+                                     }
+
+                                     override fun onUpdateUserInfo(info: IRCDataSelfSessionInfo, isFirstLogin: Boolean) {
+                                         if (isFirstLogin) {
+                                             HytBot.logger.info("[$id] IRC 服务器连接成功")
+                                             client.uploadState(
+                                                 DataUserState(
+                                                     DataPlayInGameProfile(player.profiler.name, player.profiler.id),
+                                                     "",
+                                                     0,
+                                                     true
+                                                 )
+                                             )
+                                         }
+                                     }
+
+                                     override fun onDisconnect(type: EnumDisconnectType, reason: String?, logout: Boolean) {
+                                         HytBot.logger.info("[$id] IRC 服务器连接失败: ${reason ?: type.name}")
+                                     }
+                                 },
+                                IRCClientOptions.builder()
+                                    .host(manager.base.configManager.configs.irc.server.host)
+                                    .port(manager.base.configManager.configs.irc.server.port)
+                                    .brand(
+                                        DataClientBrand(
+                                            manager.base.configManager.configs.irc.login.brand.id,
+                                            manager.base.configManager.configs.irc.login.brand.hash,
+                                            manager.base.configManager.configs.irc.login.brand.version_name,
+                                            manager.base.configManager.configs.irc.login.brand.version_id
+                                        )
+                                    )
+                                    .build()
                             )
                         }
 
                         if (manager.base.configManager.configs.irc.enable) {
-                            Thread {
-                                irc
-                                    ?.apply {
-                                        connect()
-                                        login(
-                                            manager.base.configManager.configs.irc.login.name,
-                                            manager.base.configManager.configs.irc.login.token,
-                                            ClientBrandData(
-                                                manager.base.configManager.configs.irc.login.brand.id,
-                                                manager.base.configManager.configs.irc.login.brand.hash,
-                                                manager.base.configManager.configs.irc.login.brand.version_id,
-                                                manager.base.configManager.configs.irc.login.brand.version_name
-                                            ),
-                                            false
-                                        )
-                                            ?.takeIf { it == EnumResultLogin.SUCCESS }
-                                            ?.also {
-                                                uploadSessionOptions(
-                                                    DataSessionOptions(
-                                                        PlayerSessionData(player.profiler.name, player.profiler.id),
-                                                        null,
-                                                        null,
-                                                        1000000,
-                                                        "§a",
-                                                        true
-                                                    )
-                                                )
-                                                HytBot.logger.info("[$id] IRC 服务器连接成功")
-                                            }
-                                            ?: run {
-                                                HytBot.logger.warn("[$id] IRC 服务器连接失败")
-                                            }
-                                    }
-                            }.start()
+                            irc?.connect()
                         }
                     }
                     is ServerJoinGamePacket -> {
@@ -211,7 +215,7 @@ class Bot (
                     else -> true
                 }
 
-                irc?.disconnect()
+                irc?.disconnect(false)
             }
         })
 
